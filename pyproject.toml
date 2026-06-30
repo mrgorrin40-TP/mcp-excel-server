@@ -22,7 +22,7 @@ packages = [{include = "mcp_excel", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-fastmcp = ">=2.0,<3"
+fastmcp = ">=2.0,<4"
 openpyxl = "^3.1.5"
 pydantic = "^2.0"
 pydantic-settings = "^2.0"
