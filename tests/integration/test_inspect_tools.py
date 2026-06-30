@@ -3,7 +3,8 @@
 import pytest
 from pathlib import Path
 
-from mcp_excel.tools.inspect import list_sheets, describe_workbook, get_column_stats, filter_rows, group_by
+from mcp_excel.tools.read import list_sheets, describe_workbook
+from mcp_excel.tools.inspect import get_column_stats, filter_rows, group_by
 
 
 @pytest.mark.asyncio

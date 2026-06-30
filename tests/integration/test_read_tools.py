@@ -73,7 +73,7 @@ class TestReadRange:
         result = await read_range(
             file_path=str(sample_excel_file),
             sheet_name="TestSheet",
-            range="A1:D4",
+            cell_range="A1:D4",
         )
         assert result["success"] is True
         assert len(result["data"]) == 4
@@ -84,7 +84,7 @@ class TestReadRange:
         result = await read_range(
             file_path=str(sample_excel_file),
             sheet_name="TestSheet",
-            range="A1:A1",
+            cell_range="A1:A1",
         )
         assert result["success"] is True
         assert result["data"] == [["Name"]]
@@ -94,7 +94,7 @@ class TestReadRange:
         result = await read_range(
             file_path=str(sample_excel_file),
             sheet_name="TestSheet",
-            range="A1:D4",
+            cell_range="A1:D4",
             page_size=2,
         )
         assert result["success"] is True
@@ -107,7 +107,7 @@ class TestReadRange:
         result = await read_range(
             file_path=str(sample_excel_file),
             sheet_name="TestSheet",
-            range="A1:D4",
+            cell_range="A1:D4",
             page_size=2,
             page=2,
         )

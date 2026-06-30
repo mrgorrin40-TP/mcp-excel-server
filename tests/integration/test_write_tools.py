@@ -15,7 +15,7 @@ class TestWriteCells:
         result = await write_cells(
             file_path=str(sample_excel_file),
             sheet_name="TestSheet",
-            range="E1",
+            cell_range="E1",
             values=[["New Header"]],
         )
         assert result["success"] is True
@@ -26,7 +26,7 @@ class TestWriteCells:
         result = await write_cells(
             file_path=str(sample_excel_file),
             sheet_name="TestSheet",
-            range="E1:F2",
+            cell_range="E1:F2",
             values=[["X", "Y"], [1, 2]],
         )
         assert result["success"] is True
@@ -41,7 +41,7 @@ class TestWriteCells:
         result = await write_cells(
             file_path=str(sample_excel_file),
             sheet_name="NewSheet",
-            range="A1:C1",
+            cell_range="A1:C1",
             values=[["Col1", "Col2", "Col3"]],
         )
         assert result["success"] is True
@@ -52,7 +52,7 @@ class TestWriteCells:
         result = await write_cells(
             file_path="/nonexistent/file.xlsx",
             sheet_name="Sheet1",
-            range="A1",
+            cell_range="A1",
             values=[["test"]],
         )
         assert result["success"] is False
@@ -63,7 +63,7 @@ class TestWriteCells:
         result = await write_cells(
             file_path=str(sample_excel_file),
             sheet_name="NonexistentSheet",
-            range="A1",
+            cell_range="A1",
             values=[["test"]],
         )
         assert result["success"] is False

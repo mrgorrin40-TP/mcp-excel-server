@@ -37,7 +37,7 @@ async def test_read_range(sample_excel_file):
     result = await read_range(
         file_path=str(sample_excel_file),
         sheet_name="TestSheet",
-        range="A1:C4",
+        cell_range="A1:C4",
     )
     
     assert result["success"] is True
@@ -48,7 +48,7 @@ async def test_read_range(sample_excel_file):
 @pytest.mark.asyncio
 async def test_list_sheets(sample_excel_file):
     """Test listing sheets."""
-    from mcp_excel.tools.inspect import list_sheets
+    from mcp_excel.tools.read import list_sheets
     
     result = await list_sheets(
         file_path=str(sample_excel_file),
@@ -62,7 +62,7 @@ async def test_list_sheets(sample_excel_file):
 @pytest.mark.asyncio
 async def test_describe_workbook(sample_excel_file):
     """Test describing a workbook."""
-    from mcp_excel.tools.inspect import describe_workbook
+    from mcp_excel.tools.read import describe_workbook
     
     result = await describe_workbook(
         file_path=str(sample_excel_file),
@@ -112,7 +112,7 @@ async def test_write_cells(sample_excel_file):
     result = await write_cells(
         file_path=str(sample_excel_file),
         sheet_name="TestSheet",
-        range="A5:C5",
+        cell_range="A5:C5",
         values=[["Dave", 40, "Berlin"]],
     )
     

@@ -3,10 +3,10 @@
 import pytest
 from typing import Any, Dict, List
 
-from mcp_excel.tools.read import read_cell, read_range, get_sheet_info, search_cells
+from mcp_excel.tools.read import read_cell, read_range, get_sheet_info, search_cells, list_sheets, describe_workbook
 from mcp_excel.tools.write import write_cells, write_formula, create_sheet
-from mcp_excel.tools.inspect import list_sheets, describe_workbook, get_column_stats, filter_rows, group_by
-from mcp_excel.tools.formulas import write_formula as formulas_write, read_formula, get_formula_templates
+from mcp_excel.tools.inspect import get_column_stats, filter_rows, group_by
+from mcp_excel.tools.formulas import read_formula, get_formula_templates
 
 
 class TestToolSchemas:
@@ -28,7 +28,7 @@ class TestToolSchemas:
         params = list(sig.parameters.keys())
         assert "file_path" in params
         assert "sheet_name" in params
-        assert "range" in params
+        assert "cell_range" in params
         assert "page_size" in params
 
     def test_get_sheet_info_has_correct_parameters(self):
@@ -55,7 +55,7 @@ class TestToolSchemas:
         params = list(sig.parameters.keys())
         assert "file_path" in params
         assert "sheet_name" in params
-        assert "range" in params
+        assert "cell_range" in params
         assert "values" in params
 
     def test_write_formula_has_correct_parameters(self):
@@ -141,7 +141,7 @@ class TestToolReturnTypes:
         result = await read_range(
             file_path=str(sample_excel_file),
             sheet_name="TestSheet",
-            range="A1:D4",
+            cell_range="A1:D4",
         )
         assert isinstance(result, dict)
         assert "success" in result
@@ -190,7 +190,7 @@ class TestParameterNaming:
             read_cell, read_range, get_sheet_info, search_cells,
             write_cells, write_formula, create_sheet,
             list_sheets, describe_workbook, get_column_stats, filter_rows, group_by,
-            formulas_write, read_formula, get_formula_templates,
+            read_formula, get_formula_templates,
         ]
 
         for tool in tools:

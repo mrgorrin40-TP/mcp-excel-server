@@ -1,5 +1,3 @@
 """MCP resources for Excel metadata."""
 
-from . import excel
-
-__all__ = ["excel"]
+__all__: list[str] = []

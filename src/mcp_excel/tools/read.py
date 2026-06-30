@@ -6,8 +6,8 @@ from typing import Annotated, Any
 from fastmcp import FastMCP
 from pydantic import Field
 
-from ..config import settings
 from ..backends.factory import create_backend
+from ..config import settings
 from ..utils.cache import WorkbookCache
 from ..utils.paging import PagingService
 
@@ -43,10 +43,10 @@ async def read_cell(
             backend = create_backend(file_path)
             backend.open(file_path)
             _cache.put(file_path, backend)
-        
+
         value = backend.read_cell(sheet_name, cell)
         cell_type = backend.get_cell_type(sheet_name, cell)
-        
+
         return {
             "success": True,
             "cell": cell,
@@ -67,7 +67,7 @@ async def read_cell(
 async def read_range(
     file_path: Annotated[str, Field(description="Absolute path to Excel file")],
     sheet_name: Annotated[str, Field(description="Worksheet name")],
-    range: Annotated[str, Field(description="Range notation (e.g., 'A1:C10')")],
+    cell_range: Annotated[str, Field(description="Range notation (e.g., 'A1:C10')")],
     page: Annotated[int, Field(description="Page number (1-indexed)", ge=1)] = 1,
     page_size: Annotated[int, Field(description="Rows per page", ge=1, le=1000)] = 100,
 ) -> dict[str, Any]:
@@ -78,21 +78,21 @@ async def read_range(
             backend = create_backend(file_path)
             backend.open(file_path)
             _cache.put(file_path, backend)
-        
+
         # Get data
-        data = backend.read_range(sheet_name, range)
-        
+        data = backend.read_range(sheet_name, cell_range)
+
         # Apply pagination
         total_rows = len(data)
         start_idx = (page - 1) * page_size
         end_idx = min(start_idx + page_size, total_rows)
-        
+
         paginated_data = data[start_idx:end_idx] if start_idx < total_rows else []
-        
+
         return {
             "success": True,
             "data": paginated_data,
-            "range": range,
+            "range": cell_range,
             "sheet_name": sheet_name,
             "total_rows": total_rows,
             "page": page,
@@ -120,13 +120,13 @@ async def get_sheet_info(
             backend = create_backend(file_path)
             backend.open(file_path)
             _cache.put(file_path, backend)
-        
+
         # Get sheet
         ws = backend.get_sheet(sheet_name)
-        
+
         # Get used range
         used_range = backend.get_used_range(sheet_name)
-        
+
         # Get column headers (first row)
         headers = []
         if ws.max_row and ws.max_row >= 1:
@@ -138,7 +138,7 @@ async def get_sheet_info(
                     "letter": get_column_letter(col),
                     "type": backend.get_cell_type(sheet_name, f"{get_column_letter(col)}1"),
                 })
-        
+
         # Get sample data (rows 2-6)
         sample_data = []
         if ws.max_row and ws.max_row >= 2:
@@ -149,7 +149,7 @@ async def get_sheet_info(
                     cell = ws[f"{get_column_letter(col)}{row}"]
                     row_data.append(cell.value)
                 sample_data.append(row_data)
-        
+
         return {
             "success": True,
             "name": sheet_name,
@@ -172,7 +172,9 @@ async def get_sheet_info(
 async def search_cells(
     file_path: Annotated[str, Field(description="Absolute path to Excel file")],
     query: Annotated[str, Field(description="Search term")],
-    sheet_name: Annotated[str | None, Field(description="Specific sheet (searches all if omitted)")] = None,
+    sheet_name: Annotated[
+        str | None, Field(description="Specific sheet (searches all if omitted)")
+    ] = None,
     max_results: Annotated[int, Field(description="Maximum results to return", ge=1, le=500)] = 50,
 ) -> dict[str, Any]:
     """Search for values in an Excel file."""
@@ -182,20 +184,20 @@ async def search_cells(
             backend = create_backend(file_path)
             backend.open(file_path)
             _cache.put(file_path, backend)
-        
+
         matches = []
         sheets_to_search = [sheet_name] if sheet_name else backend.get_sheet_names()
-        
+
         for sheet in sheets_to_search:
             try:
                 ws = backend.get_sheet(sheet)
-                
+
                 for row in range(1, (ws.max_row or 0) + 1):
                     for col in range(1, (ws.max_column or 0) + 1):
                         from openpyxl.utils import get_column_letter
                         cell_ref = f"{get_column_letter(col)}{row}"
                         cell_value = ws[cell_ref].value
-                        
+
                         if cell_value and query.lower() in str(cell_value).lower():
                             matches.append({
                                 "sheet": sheet,
@@ -204,7 +206,7 @@ async def search_cells(
                                 "column": get_column_letter(col),
                                 "value": cell_value,
                             })
-                            
+
                             if len(matches) >= max_results:
                                 return {
                                     "success": True,
@@ -215,7 +217,7 @@ async def search_cells(
             except Exception as e:
                 logger.warning("Error searching sheet %s: %s", sheet, e)
                 continue
-        
+
         return {
             "success": True,
             "matches": matches,
@@ -242,9 +244,9 @@ async def list_sheets(
             backend = create_backend(file_path)
             backend.open(file_path)
             _cache.put(file_path, backend)
-        
+
         sheet_names = backend.get_sheet_names()
-        
+
         return {
             "success": True,
             "sheets": sheet_names,
@@ -270,18 +272,18 @@ async def describe_workbook(
             backend = create_backend(file_path)
             backend.open(file_path)
             _cache.put(file_path, backend)
-        
+
         from pathlib import Path
         path = Path(file_path)
-        
+
         sheet_names = backend.get_sheet_names()
         sheets_info = []
-        
+
         for sheet_name in sheet_names:
             try:
                 used_range = backend.get_used_range(sheet_name)
                 ws = backend.get_sheet(sheet_name)
-                
+
                 sheets_info.append({
                     "name": sheet_name,
                     "rows": ws.max_row or 0,
@@ -294,7 +296,7 @@ async def describe_workbook(
                     "name": sheet_name,
                     "error": str(e),
                 })
-        
+
         return {
             "success": True,
             "file": {

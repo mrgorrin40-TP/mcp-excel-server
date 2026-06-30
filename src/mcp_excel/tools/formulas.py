@@ -6,8 +6,8 @@ from typing import Annotated, Any
 from fastmcp import FastMCP
 from pydantic import Field
 
-from ..config import settings
 from ..backends.factory import create_backend
+from ..config import settings
 from ..utils.cache import WorkbookCache
 
 logger = logging.getLogger(__name__)
@@ -20,44 +20,6 @@ _cache = WorkbookCache(
     max_size=settings.cache_max_size,
     max_memory_mb=settings.cache_max_memory_mb,
 )
-
-
-@tools.tool(
-    name="write_formula",
-    description="Add an Excel formula to a cell",
-    tags={"excel", "write", "formula"},
-)
-async def write_formula(
-    file_path: Annotated[str, Field(description="Absolute path to Excel file")],
-    sheet_name: Annotated[str, Field(description="Worksheet name")],
-    cell: Annotated[str, Field(description="Target cell (e.g., 'D1')")],
-    formula: Annotated[str, Field(description="Excel formula (with = prefix)")],
-) -> dict[str, Any]:
-    """Add an Excel formula to a cell."""
-    try:
-        backend = _cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
-        
-        # Ensure formula starts with =
-        if not formula.startswith("="):
-            formula = "=" + formula
-        
-        backend.write_cell(sheet_name, cell, formula)
-        backend.save()
-        
-        _cache.put(file_path, backend)
-        
-        return {
-            "success": True,
-            "cell": cell,
-            "formula": formula,
-            "sheet_name": sheet_name,
-        }
-    except Exception as e:
-        logger.error("Error writing formula: %s", e)
-        return {"success": False, "error": str(e)}
 
 
 @tools.tool(
@@ -77,10 +39,10 @@ async def read_formula(
             backend = create_backend(file_path)
             backend.open(file_path)
             _cache.put(file_path, backend)
-        
+
         ws = backend.get_sheet(sheet_name)
         cell_obj = ws[cell]
-        
+
         # Check if cell contains a formula
         if cell_obj.data_type == "f":
             formula = cell_obj.value
@@ -140,5 +102,8 @@ async def get_formula_templates() -> dict[str, Any]:
     return {
         "success": True,
         "templates": FORMULA_TEMPLATES,
-        "usage": "Use these templates as a starting point. Replace {range}, {criteria}, etc. with actual values.",
+        "usage": (
+            "Use these templates as a starting point. "
+            "Replace {range}, {criteria}, etc. with actual values."
+        ),
     }

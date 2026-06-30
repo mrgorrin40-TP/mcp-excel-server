@@ -3,7 +3,8 @@
 import pytest
 from pathlib import Path
 
-from mcp_excel.tools.formulas import write_formula, read_formula, get_formula_templates
+from mcp_excel.tools.write import write_formula
+from mcp_excel.tools.formulas import read_formula, get_formula_templates
 
 
 @pytest.mark.asyncio
@@ -60,7 +61,7 @@ class TestReadFormula:
 
     async def test_read_formula(self, sample_excel_file: Path):
         """Test reading a formula."""
-        from mcp_excel.tools.formulas import write_formula as wf
+        from mcp_excel.tools.write import write_formula as wf
 
         await wf(
             file_path=str(sample_excel_file),
@@ -85,7 +86,7 @@ class TestReadFormula:
             cell="A1",
         )
         assert result["success"] is True
-        assert result.get("formula") is None
+        assert result.get("is_formula") is False
 
     async def test_read_formula_nonexistent_cell(self, sample_excel_file: Path):
         """Test reading formula from nonexistent cell."""
@@ -95,7 +96,7 @@ class TestReadFormula:
             cell="Z100",
         )
         assert result["success"] is True
-        assert result.get("formula") is None
+        assert result.get("is_formula") is False
 
 
 @pytest.mark.asyncio
