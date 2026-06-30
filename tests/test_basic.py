@@ -86,7 +86,7 @@ async def test_get_sheet_info(sample_excel_file):
     assert result["success"] is True
     assert result["name"] == "TestSheet"
     assert result["row_count"] == 4
-    assert len(result["columns"]) == 3
+    assert len(result["columns"]) == 4
 
 
 @pytest.mark.asyncio
