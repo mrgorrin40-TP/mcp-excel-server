@@ -1442,3 +1442,50 @@ The following tools are planned for future releases:
 - `conditional_format` - Apply conditional formatting
 - `data_validation` - Add data validation rules
 - `protect_sheet` - Protect worksheet with password
+
+---
+
+## Security Features
+
+### Path Validation
+
+All file paths are validated to prevent path traversal attacks:
+
+- Paths must be absolute (relative paths are rejected)
+- `..` components are not allowed
+- Optional `allowed_directories` configuration restricts access
+
+Configure allowed directories in `.env`:
+
+```bash
+MCP_EXCEL_ALLOWED_DIRECTORIES=["/home/user/documents", "/data"]
+```
+
+### VBA Safety Validation
+
+VBA code is checked for potentially dangerous patterns:
+
+| Pattern | Risk Level |
+|---------|------------|
+| `Shell` command execution | High |
+| `FileSystemObject` access | Medium |
+| `Kill` file deletion | High |
+| `SendKeys` keyboard input | Medium |
+| `CreateObject` ActiveX | Medium |
+| Registry access | High |
+
+### Rate Limiting
+
+Request rate limiting is available per-client:
+
+- Default: 100 requests per 60 seconds
+- Macros: 10 calls per 60 seconds
+
+### Audit Logging
+
+All tool calls and security events are logged:
+
+```bash
+# Enable audit logging to file
+MCP_EXCEL_VBA_AUDIT_LOG=true
+```
