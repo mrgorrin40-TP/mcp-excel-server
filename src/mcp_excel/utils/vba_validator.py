@@ -1,5 +1,6 @@
 """VBA code validation utilities."""
 
+import re
 from dataclasses import dataclass, field
 
 
@@ -12,6 +13,26 @@ class VBAValidationResult:
     warnings: list[str] = field(default_factory=list)
     subs: list[str] = field(default_factory=list)
     functions: list[str] = field(default_factory=list)
+    safety_issues: list[str] = field(default_factory=list)
+
+
+# Potentially dangerous VBA patterns
+DANGEROUS_PATTERNS = [
+    (r"(?i)\bShell\s*\(", "Shell command execution"),
+    (r"(?i)\bCreateObject\s*\(", "ActiveX object creation"),
+    (r"(?i)\bWScript\.Shell", "Windows Script Host access"),
+    (r"(?i)\bFileSystemObject", "File system access"),
+    (r"(?i)\bKill\s*\(", "File deletion"),
+    (r"(?i)\bName\s+.*\s+As\s+", "File rename/move"),
+    (r"(?i)\bMkDir\s*\(", "Directory creation"),
+    (r"(?i)\bRmDir\s*\(", "Directory deletion"),
+    (r"(?i)\bSendKeys\s*\(", "Keyboard input simulation"),
+    (r"(?i)\bRegRead\s*\(", "Registry read"),
+    (r"(?i)\bRegWrite\s*\(", "Registry write"),
+    (r"(?i)\bURLDownloadToFile", "File download from internet"),
+    (r"(?i)\bExec\s*\(", "Command execution"),
+    (r"(?i)\bApplication\.Run\s*\(", "Dynamic macro execution"),
+]
 
 
 def validate_vba_code(code: str) -> VBAValidationResult:
@@ -21,6 +42,7 @@ def validate_vba_code(code: str) -> VBAValidationResult:
     - Matching Sub/End Sub blocks
     - Matching Function/End Function blocks
     - Variable declarations without type
+    - Potentially dangerous code patterns
 
     Args:
         code: VBA source code to validate
@@ -69,3 +91,22 @@ def validate_vba_code(code: str) -> VBAValidationResult:
 
     result.valid = len(result.errors) == 0
     return result
+
+
+def check_vba_safety(code: str) -> list[str]:
+    """Check VBA code for potentially dangerous patterns.
+
+    Args:
+        code: VBA source code to check
+
+    Returns:
+        List of safety issues found
+    """
+    issues = []
+
+    for pattern, description in DANGEROUS_PATTERNS:
+        matches = re.findall(pattern, code)
+        if matches:
+            issues.append(f"{description}: {len(matches)} occurrence(s) found")
+
+    return issues
