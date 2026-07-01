@@ -8,15 +8,11 @@ from pydantic import Field
 
 from ..backends.factory import create_backend
 from ..utils.cache import shared_cache
-from ..utils.paging import PagingService
 
 logger = logging.getLogger(__name__)
 
 # Create tools router
 tools = FastMCP("Excel Reading Tools", mask_error_details=True)
-
-# Shared paging service
-_paging = PagingService(cells_limit=4000)
 
 
 @tools.tool(

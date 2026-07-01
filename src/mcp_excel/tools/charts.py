@@ -172,9 +172,10 @@ async def list_charts(
 
         charts = []
         for idx, chart in enumerate(ws._charts):
+            title_text = _extract_chart_title(chart)
             charts.append({
                 "index": idx,
-                "title": getattr(chart, "title", f"Chart {idx + 1}"),
+                "title": title_text,
                 "type": type(chart).__name__,
                 "anchor": str(chart.anchor) if chart.anchor else None,
             })
@@ -215,7 +216,7 @@ async def delete_chart(
                 "error": f"Chart index {chart_index} out of range (0-{len(ws._charts) - 1})",
             }
 
-        chart_title = getattr(ws._charts[chart_index], "title", f"Chart {chart_index + 1}")
+        chart_title = _extract_chart_title(ws._charts[chart_index])
         del ws._charts[chart_index]
 
         backend.save()
@@ -293,3 +294,19 @@ def _col_letter_to_index(cell_ref: str) -> int:
 
     col_letter = "".join(c for c in cell_ref if c.isalpha())
     return int(column_index_from_string(col_letter))
+
+
+def _extract_chart_title(chart: Any) -> str:
+    """Extract title text from chart object."""
+    try:
+        has_tx = hasattr(chart.title, "tx") and chart.title.tx
+        has_rich = has_tx and hasattr(chart.title.tx, "rich") and chart.title.tx.rich
+        if has_rich:
+            paragraphs = chart.title.tx.rich.paragraphs
+            if paragraphs and hasattr(paragraphs[0], "r"):
+                runs = paragraphs[0].r
+                if runs:
+                    return str(runs[0].t)
+        return str(chart.title) if chart.title else "Untitled"
+    except Exception:
+        return "Untitled"

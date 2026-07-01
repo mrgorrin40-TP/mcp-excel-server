@@ -142,13 +142,21 @@ async def list_tables(
         ws = backend.get_sheet(sheet_name)
 
         tables = []
-        for table_name, table in ws.tables.items():
-            tables.append({
-                "name": table_name,
-                "display_name": table.displayName,
-                "ref": str(table.ref),
-                "style": table.tableStyleInfo.name if table.tableStyleInfo else None,
-            })
+        # ws.tables is a TableList, iterating gives us table names
+        for table_name in ws.tables:
+            try:
+                table = ws.tables[table_name]
+                display_name = table.displayName if hasattr(table, "displayName") else table_name
+                has_style = hasattr(table, "tableStyleInfo") and table.tableStyleInfo
+                style_name = table.tableStyleInfo.name if has_style else None
+                tables.append({
+                    "name": table_name,
+                    "display_name": display_name,
+                    "ref": str(table.ref),
+                    "style": style_name,
+                })
+            except Exception as e:
+                logger.warning("Error reading table %s: %s", table_name, e)
 
         return {
             "success": True,
@@ -229,7 +237,31 @@ async def add_table_row(
             }
 
         table = ws.tables[table_name]
-        table.add_row(values)
+
+        # Get current table range and expand by one row
+        from openpyxl.utils import column_index_from_string, get_column_letter
+
+        ref = str(table.ref)
+        start, end = ref.split(":")
+
+        # Parse start and end
+        start_col = "".join(c for c in start if c.isalpha())
+        start_row = int("".join(c for c in start if c.isdigit()))
+        end_col = "".join(c for c in end if c.isalpha())
+        end_row = int("".join(c for c in end if c.isdigit()))
+
+        # Expand by one row
+        new_end_row = end_row + 1
+        new_ref = f"{start_col}{start_row}:{end_col}{new_end_row}"
+        table.ref = new_ref
+
+        # Write values to the new row
+        end_col_index = column_index_from_string(end_col)
+        for i, value in enumerate(values):
+            col_index = column_index_from_string(start_col) + i
+            if col_index <= end_col_index:
+                cell = ws[f"{get_column_letter(col_index)}{new_end_row}"]
+                cell.value = value
 
         backend.save()
         shared_cache.put(file_path, backend)

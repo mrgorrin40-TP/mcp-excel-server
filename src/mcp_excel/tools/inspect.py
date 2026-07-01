@@ -10,15 +10,11 @@ from pydantic import Field
 from ..backends.factory import create_backend
 from ..config import settings
 from ..utils.cache import shared_cache
-from ..utils.headers import HeaderDetector
 
 logger = logging.getLogger(__name__)
 
 # Create tools router
 tools = FastMCP("Excel Inspection Tools", mask_error_details=True)
-
-# Header detector
-_header_detector = HeaderDetector()
 
 
 @tools.tool(
