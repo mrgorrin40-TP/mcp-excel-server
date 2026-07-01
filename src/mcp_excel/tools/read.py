@@ -7,8 +7,7 @@ from fastmcp import FastMCP
 from pydantic import Field
 
 from ..backends.factory import create_backend
-from ..config import settings
-from ..utils.cache import WorkbookCache
+from ..utils.cache import shared_cache
 from ..utils.paging import PagingService
 
 logger = logging.getLogger(__name__)
@@ -16,14 +15,8 @@ logger = logging.getLogger(__name__)
 # Create tools router
 tools = FastMCP("Excel Reading Tools", mask_error_details=True)
 
-# Shared cache instance
-_cache = WorkbookCache(
-    max_size=settings.cache_max_size,
-    max_memory_mb=settings.cache_max_memory_mb,
-)
-
 # Shared paging service
-_paging = PagingService(cells_limit=settings.paging_cells_limit)
+_paging = PagingService(cells_limit=4000)
 
 
 @tools.tool(
@@ -38,11 +31,11 @@ async def read_cell(
 ) -> dict[str, Any]:
     """Read a single cell value from an Excel file."""
     try:
-        backend = _cache.get(file_path)
+        backend = shared_cache.get(file_path)
         if backend is None:
             backend = create_backend(file_path)
             backend.open(file_path)
-            _cache.put(file_path, backend)
+            shared_cache.put(file_path, backend)
 
         value = backend.read_cell(sheet_name, cell)
         cell_type = backend.get_cell_type(sheet_name, cell)
@@ -73,11 +66,11 @@ async def read_range(
 ) -> dict[str, Any]:
     """Read a range of cells from an Excel file."""
     try:
-        backend = _cache.get(file_path)
+        backend = shared_cache.get(file_path)
         if backend is None:
             backend = create_backend(file_path)
             backend.open(file_path)
-            _cache.put(file_path, backend)
+            shared_cache.put(file_path, backend)
 
         # Get data
         data = backend.read_range(sheet_name, cell_range)
@@ -115,11 +108,11 @@ async def get_sheet_info(
 ) -> dict[str, Any]:
     """Get metadata about a worksheet."""
     try:
-        backend = _cache.get(file_path)
+        backend = shared_cache.get(file_path)
         if backend is None:
             backend = create_backend(file_path)
             backend.open(file_path)
-            _cache.put(file_path, backend)
+            shared_cache.put(file_path, backend)
 
         # Get sheet
         ws = backend.get_sheet(sheet_name)
@@ -179,11 +172,11 @@ async def search_cells(
 ) -> dict[str, Any]:
     """Search for values in an Excel file."""
     try:
-        backend = _cache.get(file_path)
+        backend = shared_cache.get(file_path)
         if backend is None:
             backend = create_backend(file_path)
             backend.open(file_path)
-            _cache.put(file_path, backend)
+            shared_cache.put(file_path, backend)
 
         matches = []
         sheets_to_search = [sheet_name] if sheet_name else backend.get_sheet_names()
@@ -239,11 +232,11 @@ async def list_sheets(
 ) -> dict[str, Any]:
     """List all worksheets in an Excel file."""
     try:
-        backend = _cache.get(file_path)
+        backend = shared_cache.get(file_path)
         if backend is None:
             backend = create_backend(file_path)
             backend.open(file_path)
-            _cache.put(file_path, backend)
+            shared_cache.put(file_path, backend)
 
         sheet_names = backend.get_sheet_names()
 
@@ -267,11 +260,11 @@ async def describe_workbook(
 ) -> dict[str, Any]:
     """Get comprehensive overview of an Excel workbook."""
     try:
-        backend = _cache.get(file_path)
+        backend = shared_cache.get(file_path)
         if backend is None:
             backend = create_backend(file_path)
             backend.open(file_path)
-            _cache.put(file_path, backend)
+            shared_cache.put(file_path, backend)
 
         from pathlib import Path
         path = Path(file_path)

@@ -7,19 +7,12 @@ from fastmcp import FastMCP
 from pydantic import Field
 
 from ..backends.factory import create_backend
-from ..config import settings
-from ..utils.cache import WorkbookCache
+from ..utils.cache import shared_cache
 
 logger = logging.getLogger(__name__)
 
 # Create tools router
 tools = FastMCP("Excel Writing Tools", mask_error_details=True)
-
-# Shared cache instance
-_cache = WorkbookCache(
-    max_size=settings.cache_max_size,
-    max_memory_mb=settings.cache_max_memory_mb,
-)
 
 
 @tools.tool(
@@ -35,7 +28,7 @@ async def write_cells(
 ) -> dict[str, Any]:
     """Write values to cells in an Excel file."""
     try:
-        backend = _cache.get(file_path)
+        backend = shared_cache.get(file_path)
         if backend is None:
             backend = create_backend(file_path)
             backend.open(file_path)
@@ -43,7 +36,7 @@ async def write_cells(
         backend.write_range(sheet_name, cell_range, values)
         backend.save()
 
-        _cache.put(file_path, backend)
+        shared_cache.put(file_path, backend)
 
         # Count cells written
         rows = len(values)
@@ -73,7 +66,7 @@ async def write_formula(
 ) -> dict[str, Any]:
     """Add an Excel formula to a cell."""
     try:
-        backend = _cache.get(file_path)
+        backend = shared_cache.get(file_path)
         if backend is None:
             backend = create_backend(file_path)
             backend.open(file_path)
@@ -85,7 +78,7 @@ async def write_formula(
         backend.write_cell(sheet_name, cell, formula)
         backend.save()
 
-        _cache.put(file_path, backend)
+        shared_cache.put(file_path, backend)
 
         return {
             "success": True,
@@ -109,7 +102,7 @@ async def create_sheet(
 ) -> dict[str, Any]:
     """Create a new worksheet in an Excel file."""
     try:
-        backend = _cache.get(file_path)
+        backend = shared_cache.get(file_path)
         if backend is None:
             backend = create_backend(file_path)
             backend.open(file_path)
@@ -117,7 +110,7 @@ async def create_sheet(
         backend.create_sheet(sheet_name)
         backend.save()
 
-        _cache.put(file_path, backend)
+        shared_cache.put(file_path, backend)
 
         return {
             "success": True,
@@ -140,7 +133,7 @@ async def delete_sheet(
 ) -> dict[str, Any]:
     """Delete a worksheet from an Excel file."""
     try:
-        backend = _cache.get(file_path)
+        backend = shared_cache.get(file_path)
         if backend is None:
             backend = create_backend(file_path)
             backend.open(file_path)
@@ -148,7 +141,7 @@ async def delete_sheet(
         backend.delete_sheet(sheet_name)
         backend.save()
 
-        _cache.put(file_path, backend)
+        shared_cache.put(file_path, backend)
 
         return {
             "success": True,

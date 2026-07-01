@@ -11,9 +11,9 @@ A Model Context Protocol (MCP) server for Excel file manipulation. Read, write, 
 - **Read Data** - Extract values, ranges, and metadata from Excel files
 - **Write Data** - Create and modify spreadsheets programmatically
 - **Formulas** - Add Excel formulas for calculations
+- **Charts** - Create and modify Excel charts (bar, line, pie, scatter, area)
+- **Tables** - Work with Excel structured tables
 - **Analysis** - Statistical summaries, filtering, and grouping
-- **Charts** - Create and modify Excel charts (coming soon)
-- **Tables** - Work with Excel structured tables (coming soon)
 
 ## Quick Start
 
@@ -124,6 +124,14 @@ Add to your OpenCode configuration:
 | `write_cells` | Write values to cells |
 | `write_formula` | Add Excel formulas |
 | `create_sheet` | Create new worksheet |
+| `delete_sheet` | Delete a worksheet |
+
+### Formulas
+
+| Tool | Description |
+|------|-------------|
+| `read_formula` | Read formula text from a cell |
+| `get_formula_templates` | Get common formula templates |
 
 ### Analysis
 
@@ -132,6 +140,24 @@ Add to your OpenCode configuration:
 | `get_column_stats` | Statistical summary |
 | `filter_rows` | Filter data by conditions |
 | `group_by` | Group and aggregate data |
+
+### Charts
+
+| Tool | Description |
+|------|-------------|
+| `create_chart` | Create bar, line, pie, scatter, or area chart |
+| `list_charts` | List all charts in a worksheet |
+| `modify_chart` | Update chart properties |
+| `delete_chart` | Remove a chart |
+
+### Tables
+
+| Tool | Description |
+|------|-------------|
+| `create_table` | Create Excel structured table |
+| `list_tables` | List all tables in a worksheet |
+| `delete_table` | Delete a table |
+| `add_table_row` | Add row to a table |
 
 ## Example Usage
 

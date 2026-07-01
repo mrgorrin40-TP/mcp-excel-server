@@ -9,19 +9,13 @@ from pydantic import Field
 
 from ..backends.factory import create_backend
 from ..config import settings
-from ..utils.cache import WorkbookCache
+from ..utils.cache import shared_cache
 from ..utils.headers import HeaderDetector
 
 logger = logging.getLogger(__name__)
 
 # Create tools router
 tools = FastMCP("Excel Inspection Tools", mask_error_details=True)
-
-# Shared cache instance
-_cache = WorkbookCache(
-    max_size=settings.cache_max_size,
-    max_memory_mb=settings.cache_max_memory_mb,
-)
 
 # Header detector
 _header_detector = HeaderDetector()
@@ -39,11 +33,11 @@ async def get_column_stats(
 ) -> dict[str, Any]:
     """Get statistical summary of a column."""
     try:
-        backend = _cache.get(file_path)
+        backend = shared_cache.get(file_path)
         if backend is None:
             backend = create_backend(file_path)
             backend.open(file_path)
-            _cache.put(file_path, backend)
+            shared_cache.put(file_path, backend)
 
         ws = backend.get_sheet(sheet_name)
 
@@ -130,11 +124,11 @@ async def filter_rows(
 ) -> dict[str, Any]:
     """Filter rows based on conditions."""
     try:
-        backend = _cache.get(file_path)
+        backend = shared_cache.get(file_path)
         if backend is None:
             backend = create_backend(file_path)
             backend.open(file_path)
-            _cache.put(file_path, backend)
+            shared_cache.put(file_path, backend)
 
         ws = backend.get_sheet(sheet_name)
 
@@ -238,11 +232,11 @@ async def group_by(
 ) -> dict[str, Any]:
     """Group data and apply aggregation."""
     try:
-        backend = _cache.get(file_path)
+        backend = shared_cache.get(file_path)
         if backend is None:
             backend = create_backend(file_path)
             backend.open(file_path)
-            _cache.put(file_path, backend)
+            shared_cache.put(file_path, backend)
 
         ws = backend.get_sheet(sheet_name)
 

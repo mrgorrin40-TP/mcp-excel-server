@@ -6,6 +6,7 @@ from collections import OrderedDict
 from pathlib import Path
 
 from ..backends.base import ExcelBackend
+from ..config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -145,3 +146,10 @@ class WorkbookCache:
     def keys(self) -> list[str]:
         """Get list of cached file paths."""
         return list(self._cache.keys())
+
+
+# Shared cache instance for all tool modules
+shared_cache = WorkbookCache(
+    max_size=settings.cache_max_size,
+    max_memory_mb=settings.cache_max_memory_mb,
+)

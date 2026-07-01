@@ -1,5 +1,5 @@
 """MCP tools for Excel operations."""
 
-from . import formulas, inspect, read, write
+from . import charts, formulas, inspect, read, tables, write
 
-__all__ = ["read", "write", "formulas", "inspect"]
+__all__ = ["charts", "formulas", "inspect", "read", "tables", "write"]

@@ -6,8 +6,10 @@ Complete reference for all MCP Excel Server tools.
 
 - [Reading Tools](#reading-tools)
 - [Writing Tools](#writing-tools)
+- [Formula Tools](#formula-tools)
 - [Analysis Tools](#analysis-tools)
-- [Coming Soon](#coming-soon)
+- [Chart Tools](#chart-tools)
+- [Table Tools](#table-tools)
 
 ---
 
@@ -391,6 +393,128 @@ Create a new worksheet in an Excel file.
 
 ---
 
+### delete_sheet
+
+Delete a worksheet from an Excel file.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `file_path` | string | Yes | Absolute path to Excel file |
+| `sheet_name` | string | Yes | Worksheet name to delete |
+
+**Returns:**
+- Success status
+- Deleted sheet name
+
+**Example:**
+```json
+{
+  "file_path": "C:/Documents/report.xlsx",
+  "sheet_name": "TempSheet"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "sheet_name": "TempSheet",
+  "message": "Sheet 'TempSheet' deleted successfully"
+}
+```
+
+**Notes:**
+- Cannot delete the last remaining worksheet
+- Sheet must exist in the workbook
+
+---
+
+## Formula Tools
+
+### read_formula
+
+Read the formula text from a cell (returns formula text, not calculated value).
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `file_path` | string | Yes | Absolute path to Excel file |
+| `sheet_name` | string | Yes | Worksheet name |
+| `cell` | string | Yes | Cell reference (e.g., "D1") |
+
+**Returns:**
+- Cell location
+- Formula text (if cell contains formula)
+- Whether cell contains a formula
+
+**Example:**
+```json
+{
+  "file_path": "C:/Documents/report.xlsx",
+  "sheet_name": "Summary",
+  "cell": "D1"
+}
+```
+
+**Response (cell has formula):**
+```json
+{
+  "success": true,
+  "cell": "D1",
+  "formula": "=SUM(B2:B10)",
+  "is_formula": true,
+  "sheet_name": "Summary"
+}
+```
+
+**Response (cell has no formula):**
+```json
+{
+  "success": true,
+  "cell": "A1",
+  "value": "Product",
+  "is_formula": false,
+  "sheet_name": "Summary"
+}
+```
+
+---
+
+### get_formula_templates
+
+Get common Excel formula templates.
+
+**Parameters:** None
+
+**Returns:**
+- Dictionary of formula templates
+- Usage instructions
+
+**Example:**
+```json
+{}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "templates": {
+    "sum": "=SUM({range})",
+    "average": "=AVERAGE({range})",
+    "count": "=COUNT({range})",
+    "if": "=IF({condition},\"{true_value}\",\"{false_value}\")",
+    "vlookup": "=VLOOKUP({lookup_value},{table_range},{col_index},FALSE)"
+  },
+  "usage": "Use these templates as a starting point. Replace {range}, {criteria}, etc. with actual values."
+}
+```
+
+---
+
 ## Analysis Tools
 
 ### get_column_stats
@@ -554,21 +678,334 @@ Group data and apply aggregation.
 
 ---
 
+## Chart Tools
+
+### create_chart
+
+Create a chart in an Excel worksheet.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `file_path` | string | Yes | Absolute path to Excel file |
+| `sheet_name` | string | Yes | Worksheet name |
+| `chart_type` | string | Yes | Chart type: bar, line, pie, scatter, area |
+| `title` | string | Yes | Chart title |
+| `data_range` | string | Yes | Data range (e.g., "A1:D10") |
+| `category_range` | string | No | Category labels range (e.g., "A1:A10") |
+| `position` | string | No | Position (e.g., "E2" or "E2:J20") |
+
+**Returns:**
+- Chart type
+- Title
+- Position
+
+**Example:**
+```json
+{
+  "file_path": "C:/Documents/sales.xlsx",
+  "sheet_name": "Q1",
+  "chart_type": "bar",
+  "title": "Sales by Product",
+  "data_range": "A1:B10",
+  "category_range": "A1:A10"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "chart_type": "bar",
+  "title": "Sales by Product",
+  "sheet_name": "Q1",
+  "position": "E2",
+  "data_range": "A1:B10"
+}
+```
+
+---
+
+### list_charts
+
+List all charts in an Excel worksheet.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `file_path` | string | Yes | Absolute path to Excel file |
+| `sheet_name` | string | Yes | Worksheet name |
+
+**Returns:**
+- List of charts with index, title, type, and position
+
+**Example:**
+```json
+{
+  "file_path": "C:/Documents/sales.xlsx",
+  "sheet_name": "Q1"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "sheet_name": "Q1",
+  "charts": [
+    {
+      "index": 0,
+      "title": "Sales by Product",
+      "type": "BarChart",
+      "anchor": "E2"
+    }
+  ],
+  "count": 1
+}
+```
+
+---
+
+### modify_chart
+
+Modify chart properties in an Excel worksheet.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `file_path` | string | Yes | Absolute path to Excel file |
+| `sheet_name` | string | Yes | Worksheet name |
+| `chart_index` | integer | Yes | Index of chart to modify (0-based) |
+| `title` | string | No | New chart title |
+| `style` | integer | No | Chart style (1-48) |
+
+**Returns:**
+- Modified properties list
+
+**Example:**
+```json
+{
+  "file_path": "C:/Documents/sales.xlsx",
+  "sheet_name": "Q1",
+  "chart_index": 0,
+  "title": "Updated Title"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "sheet_name": "Q1",
+  "chart_index": 0,
+  "modified_properties": ["title"]
+}
+```
+
+---
+
+### delete_chart
+
+Delete a chart from an Excel worksheet.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `file_path` | string | Yes | Absolute path to Excel file |
+| `sheet_name` | string | Yes | Worksheet name |
+| `chart_index` | integer | Yes | Index of chart to delete (0-based) |
+
+**Returns:**
+- Deleted chart info
+
+**Example:**
+```json
+{
+  "file_path": "C:/Documents/sales.xlsx",
+  "sheet_name": "Q1",
+  "chart_index": 0
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "sheet_name": "Q1",
+  "deleted_chart_index": 0,
+  "chart_title": "Sales by Product"
+}
+```
+
+---
+
+## Table Tools
+
+### create_table
+
+Create a structured Excel table from a data range.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `file_path` | string | Yes | Absolute path to Excel file |
+| `sheet_name` | string | Yes | Worksheet name |
+| `table_name` | string | Yes | Name for the table |
+| `data_range` | string | Yes | Data range (e.g., "A1:D100") |
+| `has_header` | boolean | No | Whether data has headers (default: true) |
+| `style` | string | No | Table style (e.g., "TableStyleMedium2") |
+
+**Returns:**
+- Table name
+- Data range
+- Style applied
+
+**Example:**
+```json
+{
+  "file_path": "C:/Documents/sales.xlsx",
+  "sheet_name": "Q1",
+  "table_name": "SalesTable",
+  "data_range": "A1:D100"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "table_name": "SalesTable",
+  "sheet_name": "Q1",
+  "data_range": "A1:D100",
+  "has_header": true,
+  "style": "TableStyleMedium2"
+}
+```
+
+---
+
+### list_tables
+
+List all structured tables in an Excel worksheet.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `file_path` | string | Yes | Absolute path to Excel file |
+| `sheet_name` | string | Yes | Worksheet name |
+
+**Returns:**
+- List of tables with name, display name, range, and style
+
+**Example:**
+```json
+{
+  "file_path": "C:/Documents/sales.xlsx",
+  "sheet_name": "Q1"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "sheet_name": "Q1",
+  "tables": [
+    {
+      "name": "Table1",
+      "display_name": "SalesTable",
+      "ref": "A1:D100",
+      "style": "TableStyleMedium2"
+    }
+  ],
+  "count": 1
+}
+```
+
+---
+
+### delete_table
+
+Delete a structured table from an Excel worksheet.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `file_path` | string | Yes | Absolute path to Excel file |
+| `sheet_name` | string | Yes | Worksheet name |
+| `table_name` | string | Yes | Name of table to delete |
+
+**Returns:**
+- Deleted table name
+
+**Example:**
+```json
+{
+  "file_path": "C:/Documents/sales.xlsx",
+  "sheet_name": "Q1",
+  "table_name": "SalesTable"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "sheet_name": "Q1",
+  "deleted_table": "SalesTable"
+}
+```
+
+---
+
+### add_table_row
+
+Add a row to an Excel structured table.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `file_path` | string | Yes | Absolute path to Excel file |
+| `sheet_name` | string | Yes | Worksheet name |
+| `table_name` | string | Yes | Table name |
+| `values` | array | Yes | Row values |
+
+**Returns:**
+- Added values
+
+**Example:**
+```json
+{
+  "file_path": "C:/Documents/sales.xlsx",
+  "sheet_name": "Q1",
+  "table_name": "SalesTable",
+  "values": ["Widget X", 50, 29.99, "North"]
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "sheet_name": "Q1",
+  "table_name": "SalesTable",
+  "values": ["Widget X", 50, 29.99, "North"]
+}
+```
+
+---
+
 ## Coming Soon
 
 The following tools are planned for future releases:
-
-### Charts (v0.2.0)
-- `create_chart` - Create bar, line, pie, scatter charts
-- `modify_chart` - Update chart properties
-- `delete_chart` - Remove a chart
-- `list_charts` - List all charts in a sheet
-
-### Tables (v0.2.0)
-- `create_table` - Create Excel structured table
-- `add_table_column` - Add column to table
-- `add_table_row` - Add row to table
-- `format_table` - Apply table formatting
 
 ### Advanced (v0.3.0)
 - `pivot_table` - Create pivot tables

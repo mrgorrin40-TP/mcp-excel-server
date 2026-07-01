@@ -6,7 +6,7 @@ import sys
 from fastmcp import FastMCP
 
 from .config import settings
-from .tools import formulas, inspect, read, write
+from .tools import charts, formulas, inspect, read, tables, write
 
 # Configure logging to stderr (keep stdout clean for MCP)
 logging.basicConfig(
@@ -20,9 +20,10 @@ logger = logging.getLogger(__name__)
 mcp = FastMCP(
     name="mcp-excel-server",
     instructions=(
-        "MCP server for Excel file manipulation - read, write, formulas, charts, and tables"
+        "MCP server for Excel file manipulation - "
+        "read, write, formulas, charts, tables, and analysis"
     ),
-    version="0.1.0",
+    version="0.2.0",
     mask_error_details=settings.mask_errors,
 )
 
@@ -31,8 +32,10 @@ mcp.mount(read.tools)
 mcp.mount(write.tools)
 mcp.mount(formulas.tools)
 mcp.mount(inspect.tools)
+mcp.mount(charts.tools)
+mcp.mount(tables.tools)
 
-logger.info("MCP Excel Server initialized")
+logger.info("MCP Excel Server initialized (v0.2.0)")
 
 
 def main() -> None:
