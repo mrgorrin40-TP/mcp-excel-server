@@ -6,8 +6,7 @@ from typing import Annotated, Any
 from fastmcp import FastMCP
 from pydantic import Field
 
-from ..backends.factory import create_backend
-from ..utils.cache import shared_cache
+from ..utils.backend import get_backend
 
 logger = logging.getLogger(__name__)
 
@@ -52,10 +51,7 @@ async def create_chart(
 ) -> dict[str, Any]:
     """Create a chart in an Excel worksheet."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
+        backend = get_backend(file_path)
 
         ws = backend.get_sheet(sheet_name)
 
@@ -136,7 +132,6 @@ async def create_chart(
         ws.add_chart(chart, chart.anchor or "E2")
 
         backend.save()
-        shared_cache.put(file_path, backend)
 
         return {
             "success": True,
@@ -162,11 +157,7 @@ async def list_charts(
 ) -> dict[str, Any]:
     """List all charts in an Excel worksheet."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
-            shared_cache.put(file_path, backend)
+        backend = get_backend(file_path)
 
         ws = backend.get_sheet(sheet_name)
 
@@ -203,10 +194,7 @@ async def delete_chart(
 ) -> dict[str, Any]:
     """Delete a chart from an Excel worksheet."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
+        backend = get_backend(file_path)
 
         ws = backend.get_sheet(sheet_name)
 
@@ -220,7 +208,6 @@ async def delete_chart(
         del ws._charts[chart_index]
 
         backend.save()
-        shared_cache.put(file_path, backend)
 
         return {
             "success": True,
@@ -247,10 +234,7 @@ async def modify_chart(
 ) -> dict[str, Any]:
     """Modify chart properties in an Excel worksheet."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
+        backend = get_backend(file_path)
 
         ws = backend.get_sheet(sheet_name)
 
@@ -275,7 +259,6 @@ async def modify_chart(
                 return {"success": False, "error": "Style must be between 1 and 48"}
 
         backend.save()
-        shared_cache.put(file_path, backend)
 
         return {
             "success": True,

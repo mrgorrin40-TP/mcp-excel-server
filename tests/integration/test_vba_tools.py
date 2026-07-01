@@ -1,8 +1,7 @@
 """Tests for VBA tools."""
 
 import pytest
-from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 
 from mcp_excel.tools.vba import (
     list_vba_modules,
@@ -20,8 +19,7 @@ from mcp_excel.tools.vba import (
 )
 
 
-@pytest.fixture
-def mock_backend():
+def _create_mock_backend():
     """Create a mock backend with VBA support."""
     backend = Mock()
     backend.has_macros.return_value = True
@@ -40,12 +38,10 @@ def mock_backend():
 class TestListVbaModules:
     """Tests for list_vba_modules tool."""
 
-    @patch("mcp_excel.tools.vba.shared_cache")
-    @patch("mcp_excel.tools.vba.create_backend")
-    async def test_list_modules_success(self, mock_create, mock_cache, mock_backend):
+    @patch("mcp_excel.tools.vba.get_backend")
+    async def test_list_modules_success(self, mock_get_backend):
         """Test listing VBA modules successfully."""
-        mock_cache.get.return_value = mock_backend
-        mock_create.return_value = mock_backend
+        mock_get_backend.return_value = _create_mock_backend()
 
         result = await list_vba_modules(file_path="test.xlsm")
 
@@ -53,14 +49,12 @@ class TestListVbaModules:
         assert result["count"] == 2
         assert result["modules"][0]["name"] == "Module1"
 
-    @patch("mcp_excel.tools.vba.shared_cache")
-    @patch("mcp_excel.tools.vba.create_backend")
-    async def test_list_modules_no_macros(self, mock_create, mock_cache):
+    @patch("mcp_excel.tools.vba.get_backend")
+    async def test_list_modules_no_macros(self, mock_get_backend):
         """Test listing modules when file has no macros."""
         backend = Mock()
         backend.has_macros.return_value = False
-        mock_cache.get.return_value = backend
-        mock_create.return_value = backend
+        mock_get_backend.return_value = backend
 
         result = await list_vba_modules(file_path="test.xlsx")
 
@@ -72,12 +66,10 @@ class TestListVbaModules:
 class TestGetVbaCode:
     """Tests for get_vba_code tool."""
 
-    @patch("mcp_excel.tools.vba.shared_cache")
-    @patch("mcp_excel.tools.vba.create_backend")
-    async def test_get_code_success(self, mock_create, mock_cache, mock_backend):
+    @patch("mcp_excel.tools.vba.get_backend")
+    async def test_get_code_success(self, mock_get_backend):
         """Test getting VBA code successfully."""
-        mock_cache.get.return_value = mock_backend
-        mock_create.return_value = mock_backend
+        mock_get_backend.return_value = _create_mock_backend()
 
         result = await get_vba_code(file_path="test.xlsm", module_name="Module1")
 
@@ -90,12 +82,11 @@ class TestGetVbaCode:
 class TestSetVbaCode:
     """Tests for set_vba_code tool."""
 
-    @patch("mcp_excel.tools.vba.shared_cache")
-    @patch("mcp_excel.tools.vba.create_backend")
-    async def test_set_code_success(self, mock_create, mock_cache, mock_backend):
+    @patch("mcp_excel.tools.vba.get_backend")
+    async def test_set_code_success(self, mock_get_backend):
         """Test setting VBA code successfully."""
-        mock_cache.get.return_value = mock_backend
-        mock_create.return_value = mock_backend
+        backend = _create_mock_backend()
+        mock_get_backend.return_value = backend
 
         new_code = 'Sub NewMacro()\n    MsgBox "New"\nEnd Sub'
         result = await set_vba_code(
@@ -106,20 +97,19 @@ class TestSetVbaCode:
 
         assert result["success"] is True
         assert result["code_length"] == len(new_code)
-        mock_backend.set_vba_code.assert_called_once_with("Module1", new_code)
-        mock_backend.save.assert_called_once()
+        backend.set_vba_code.assert_called_once_with("Module1", new_code)
+        backend.save.assert_called_once()
 
 
 @pytest.mark.asyncio
 class TestAddVbaModule:
     """Tests for add_vba_module tool."""
 
-    @patch("mcp_excel.tools.vba.shared_cache")
-    @patch("mcp_excel.tools.vba.create_backend")
-    async def test_add_module_success(self, mock_create, mock_cache, mock_backend):
+    @patch("mcp_excel.tools.vba.get_backend")
+    async def test_add_module_success(self, mock_get_backend):
         """Test adding VBA module successfully."""
-        mock_cache.get.return_value = mock_backend
-        mock_create.return_value = mock_backend
+        backend = _create_mock_backend()
+        mock_get_backend.return_value = backend
 
         result = await add_vba_module(
             file_path="test.xlsm",
@@ -130,14 +120,12 @@ class TestAddVbaModule:
 
         assert result["success"] is True
         assert result["module_name"] == "NewModule"
-        mock_backend.add_vba_module.assert_called_once()
+        backend.add_vba_module.assert_called_once()
 
-    @patch("mcp_excel.tools.vba.shared_cache")
-    @patch("mcp_excel.tools.vba.create_backend")
-    async def test_add_module_invalid_type(self, mock_create, mock_cache, mock_backend):
+    @patch("mcp_excel.tools.vba.get_backend")
+    async def test_add_module_invalid_type(self, mock_get_backend):
         """Test adding module with invalid type."""
-        mock_cache.get.return_value = mock_backend
-        mock_create.return_value = mock_backend
+        mock_get_backend.return_value = _create_mock_backend()
 
         result = await add_vba_module(
             file_path="test.xlsm",
@@ -153,12 +141,11 @@ class TestAddVbaModule:
 class TestDeleteVbaModule:
     """Tests for delete_vba_module tool."""
 
-    @patch("mcp_excel.tools.vba.shared_cache")
-    @patch("mcp_excel.tools.vba.create_backend")
-    async def test_delete_module_success(self, mock_create, mock_cache, mock_backend):
+    @patch("mcp_excel.tools.vba.get_backend")
+    async def test_delete_module_success(self, mock_get_backend):
         """Test deleting VBA module successfully."""
-        mock_cache.get.return_value = mock_backend
-        mock_create.return_value = mock_backend
+        backend = _create_mock_backend()
+        mock_get_backend.return_value = backend
 
         result = await delete_vba_module(
             file_path="test.xlsm",
@@ -167,19 +154,18 @@ class TestDeleteVbaModule:
 
         assert result["success"] is True
         assert result["deleted_module"] == "Module1"
-        mock_backend.delete_vba_module.assert_called_once_with("Module1")
+        backend.delete_vba_module.assert_called_once_with("Module1")
 
 
 @pytest.mark.asyncio
 class TestRenameVbaModule:
     """Tests for rename_vba_module tool."""
 
-    @patch("mcp_excel.tools.vba.shared_cache")
-    @patch("mcp_excel.tools.vba.create_backend")
-    async def test_rename_module_success(self, mock_create, mock_cache, mock_backend):
+    @patch("mcp_excel.tools.vba.get_backend")
+    async def test_rename_module_success(self, mock_get_backend):
         """Test renaming VBA module successfully."""
-        mock_cache.get.return_value = mock_backend
-        mock_create.return_value = mock_backend
+        backend = _create_mock_backend()
+        mock_get_backend.return_value = backend
 
         result = await rename_vba_module(
             file_path="test.xlsm",
@@ -190,20 +176,19 @@ class TestRenameVbaModule:
         assert result["success"] is True
         assert result["old_name"] == "Module1"
         assert result["new_name"] == "RenamedModule"
-        mock_backend.rename_vba_module.assert_called_once_with("Module1", "RenamedModule")
+        backend.rename_vba_module.assert_called_once_with("Module1", "RenamedModule")
 
 
 @pytest.mark.asyncio
 class TestRunMacro:
     """Tests for run_macro tool."""
 
-    @patch("mcp_excel.tools.vba.shared_cache")
-    @patch("mcp_excel.tools.vba.create_backend")
-    async def test_run_macro_success(self, mock_create, mock_cache, mock_backend):
+    @patch("mcp_excel.tools.vba.get_backend")
+    async def test_run_macro_success(self, mock_get_backend):
         """Test running macro successfully."""
-        mock_backend.run_macro.return_value = "Result"
-        mock_cache.get.return_value = mock_backend
-        mock_create.return_value = mock_backend
+        backend = _create_mock_backend()
+        backend.run_macro.return_value = "Result"
+        mock_get_backend.return_value = backend
 
         result = await run_macro(
             file_path="test.xlsm",
@@ -212,19 +197,17 @@ class TestRunMacro:
 
         assert result["success"] is True
         assert result["macro_name"] == "Module1.Test"
-        mock_backend.run_macro.assert_called_once_with("Module1.Test")
+        backend.run_macro.assert_called_once_with("Module1.Test")
 
 
 @pytest.mark.asyncio
 class TestListMacros:
     """Tests for list_macros tool."""
 
-    @patch("mcp_excel.tools.vba.shared_cache")
-    @patch("mcp_excel.tools.vba.create_backend")
-    async def test_list_macros_success(self, mock_create, mock_cache, mock_backend):
+    @patch("mcp_excel.tools.vba.get_backend")
+    async def test_list_macros_success(self, mock_get_backend):
         """Test listing macros successfully."""
-        mock_cache.get.return_value = mock_backend
-        mock_create.return_value = mock_backend
+        mock_get_backend.return_value = _create_mock_backend()
 
         result = await list_macros(file_path="test.xlsm")
 
@@ -314,13 +297,12 @@ class TestValidateVbaCode:
 class TestImportVbaModule:
     """Tests for import_vba_module tool."""
 
-    @patch("mcp_excel.tools.vba.shared_cache")
-    @patch("mcp_excel.tools.vba.create_backend")
-    async def test_import_new_module(self, mock_create, mock_cache, mock_backend):
+    @patch("mcp_excel.tools.vba.get_backend")
+    async def test_import_new_module(self, mock_get_backend):
         """Test importing to a new module."""
-        mock_backend.get_vba_code.side_effect = ValueError("Module not found")
-        mock_cache.get.return_value = mock_backend
-        mock_create.return_value = mock_backend
+        backend = _create_mock_backend()
+        backend.get_vba_code.side_effect = ValueError("Module not found")
+        mock_get_backend.return_value = backend
 
         code = 'Sub Imported()\n    MsgBox "Imported"\nEnd Sub'
         result = await import_vba_module(
@@ -331,14 +313,12 @@ class TestImportVbaModule:
 
         assert result["success"] is True
         assert result["module_name"] == "ImportedModule"
-        mock_backend.add_vba_module.assert_called_once()
+        backend.add_vba_module.assert_called_once()
 
-    @patch("mcp_excel.tools.vba.shared_cache")
-    @patch("mcp_excel.tools.vba.create_backend")
-    async def test_import_existing_module(self, mock_create, mock_cache, mock_backend):
+    @patch("mcp_excel.tools.vba.get_backend")
+    async def test_import_existing_module(self, mock_get_backend):
         """Test importing to an existing module."""
-        mock_cache.get.return_value = mock_backend
-        mock_create.return_value = mock_backend
+        mock_get_backend.return_value = _create_mock_backend()
 
         code = 'Sub Updated()\n    MsgBox "Updated"\nEnd Sub'
         result = await import_vba_module(
@@ -348,19 +328,18 @@ class TestImportVbaModule:
         )
 
         assert result["success"] is True
-        mock_backend.set_vba_code.assert_called_once()
+        backend = mock_get_backend.return_value
+        backend.set_vba_code.assert_called_once()
 
 
 @pytest.mark.asyncio
 class TestExportVbaModule:
     """Tests for export_vba_module tool."""
 
-    @patch("mcp_excel.tools.vba.shared_cache")
-    @patch("mcp_excel.tools.vba.create_backend")
-    async def test_export_module_success(self, mock_create, mock_cache, mock_backend):
+    @patch("mcp_excel.tools.vba.get_backend")
+    async def test_export_module_success(self, mock_get_backend):
         """Test exporting VBA module successfully."""
-        mock_cache.get.return_value = mock_backend
-        mock_create.return_value = mock_backend
+        mock_get_backend.return_value = _create_mock_backend()
 
         result = await export_vba_module(
             file_path="test.xlsm",

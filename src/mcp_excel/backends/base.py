@@ -73,6 +73,54 @@ class ExcelBackend(ABC):
         """Get the data type of a cell."""
         pass
 
+    # Sheet metadata methods (for tools that need row/column counts)
+
+    @abstractmethod
+    def get_max_row(self, sheet_name: str) -> int:
+        """Get the maximum row number with data in a worksheet."""
+        pass
+
+    @abstractmethod
+    def get_max_column(self, sheet_name: str) -> int:
+        """Get the maximum column number with data in a worksheet."""
+        pass
+
+    def get_cell_value(self, sheet_name: str, cell: str) -> Any:
+        """Get the value of a cell (convenience method).
+
+        Default implementation uses read_cell.
+        Override for better performance if needed.
+        """
+        return self.read_cell(sheet_name, cell)
+
+    def get_row_values(self, sheet_name: str, row: int) -> list[Any]:
+        """Get all values in a row.
+
+        Default implementation uses read_range.
+        Override for better performance if needed.
+        """
+        from openpyxl.utils import get_column_letter
+
+        max_col = self.get_max_column(sheet_name)
+        if max_col == 0:
+            return []
+        range_str = f"A{row}:{get_column_letter(max_col)}{row}"
+        result = self.read_range(sheet_name, range_str)
+        return result[0] if result else []
+
+    def get_column_values(self, sheet_name: str, column: str) -> list[Any]:
+        """Get all values in a column.
+
+        Default implementation uses read_range.
+        Override for better performance if needed.
+        """
+        max_row = self.get_max_row(sheet_name)
+        if max_row == 0:
+            return []
+        range_str = f"{column}1:{column}{max_row}"
+        result = self.read_range(sheet_name, range_str)
+        return [row[0] if row else None for row in result]
+
     # VBA-specific methods (optional - not all backends support VBA)
 
     def has_macros(self) -> bool:

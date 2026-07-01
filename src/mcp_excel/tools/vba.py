@@ -6,8 +6,7 @@ from typing import Annotated, Any
 from fastmcp import FastMCP
 from pydantic import Field
 
-from ..backends.factory import create_backend
-from ..utils.cache import shared_cache
+from ..utils.backend import get_backend
 
 logger = logging.getLogger(__name__)
 
@@ -178,11 +177,7 @@ async def list_vba_modules(
 ) -> dict[str, Any]:
     """List all VBA modules in an Excel workbook."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
-            shared_cache.put(file_path, backend)
+        backend = get_backend(file_path)
 
         if not backend.has_macros():
             return {"success": False, "error": "File has no VBA macros"}
@@ -205,11 +200,7 @@ async def get_vba_code(
 ) -> dict[str, Any]:
     """Get VBA source code from a module."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
-            shared_cache.put(file_path, backend)
+        backend = get_backend(file_path)
 
         code = backend.get_vba_code(module_name)
         return {"success": True, "module_name": module_name, "code": code}
@@ -230,14 +221,10 @@ async def set_vba_code(
 ) -> dict[str, Any]:
     """Set/replace VBA source code in a module."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
+        backend = get_backend(file_path)
 
         backend.set_vba_code(module_name, code)
         backend.save()
-        shared_cache.put(file_path, backend)
 
         return {"success": True, "module_name": module_name, "code_length": len(code)}
     except Exception as e:
@@ -266,14 +253,10 @@ async def add_vba_module(
                 "error": f"Invalid module type: {module_type}. Use: {MODULE_TYPES}",
             }
 
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
+        backend = get_backend(file_path)
 
         backend.add_vba_module(module_name, code, module_type)
         backend.save()
-        shared_cache.put(file_path, backend)
 
         return {"success": True, "module_name": module_name, "module_type": module_type}
     except Exception as e:
@@ -292,14 +275,10 @@ async def delete_vba_module(
 ) -> dict[str, Any]:
     """Delete a VBA module from the workbook."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
+        backend = get_backend(file_path)
 
         backend.delete_vba_module(module_name)
         backend.save()
-        shared_cache.put(file_path, backend)
 
         return {"success": True, "deleted_module": module_name}
     except Exception as e:
@@ -319,14 +298,10 @@ async def rename_vba_module(
 ) -> dict[str, Any]:
     """Rename a VBA module."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
+        backend = get_backend(file_path)
 
         backend.rename_vba_module(old_name, new_name)
         backend.save()
-        shared_cache.put(file_path, backend)
 
         return {"success": True, "old_name": old_name, "new_name": new_name}
     except Exception as e:
@@ -348,11 +323,7 @@ async def run_macro(
 ) -> dict[str, Any]:
     """Execute a VBA macro by name."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
-            shared_cache.put(file_path, backend)
+        backend = get_backend(file_path)
 
         macro_args = args if args is not None else []
         result = backend.run_macro(macro_name, *macro_args)
@@ -372,11 +343,7 @@ async def list_macros(
 ) -> dict[str, Any]:
     """List all Sub/Function procedures in VBA project."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
-            shared_cache.put(file_path, backend)
+        backend = get_backend(file_path)
 
         macros = backend.list_macros()
         return {"success": True, "macros": macros, "count": len(macros)}
@@ -484,10 +451,7 @@ async def import_vba_module(
 ) -> dict[str, Any]:
     """Import VBA code from a string to a module."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
+        backend = get_backend(file_path)
 
         # Check if module exists
         try:
@@ -499,7 +463,6 @@ async def import_vba_module(
             backend.add_vba_module(module_name, code, module_type)
 
         backend.save()
-        shared_cache.put(file_path, backend)
 
         return {
             "success": True,
@@ -522,11 +485,7 @@ async def export_vba_module(
 ) -> dict[str, Any]:
     """Export VBA code from a module to a string."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
-            shared_cache.put(file_path, backend)
+        backend = get_backend(file_path)
 
         code = backend.get_vba_code(module_name)
         return {

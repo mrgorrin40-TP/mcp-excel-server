@@ -7,9 +7,8 @@ from typing import Annotated, Any
 from fastmcp import FastMCP
 from pydantic import Field
 
-from ..backends.factory import create_backend
 from ..config import settings
-from ..utils.cache import shared_cache
+from ..utils.backend import get_backend
 
 logger = logging.getLogger(__name__)
 
@@ -29,11 +28,7 @@ async def get_column_stats(
 ) -> dict[str, Any]:
     """Get statistical summary of a column."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
-            shared_cache.put(file_path, backend)
+        backend = get_backend(file_path)
 
         ws = backend.get_sheet(sheet_name)
 
@@ -120,11 +115,7 @@ async def filter_rows(
 ) -> dict[str, Any]:
     """Filter rows based on conditions."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
-            shared_cache.put(file_path, backend)
+        backend = get_backend(file_path)
 
         ws = backend.get_sheet(sheet_name)
 
@@ -228,11 +219,7 @@ async def group_by(
 ) -> dict[str, Any]:
     """Group data and apply aggregation."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
-            shared_cache.put(file_path, backend)
+        backend = get_backend(file_path)
 
         ws = backend.get_sheet(sheet_name)
 

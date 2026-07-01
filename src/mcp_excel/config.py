@@ -12,6 +12,10 @@ class Settings(BaseSettings):
 
     # Security settings
     mask_errors: bool = Field(default=True, description="Mask internal errors in production")
+    allowed_directories: list[str] = Field(
+        default_factory=list,
+        description="List of allowed directories for file access (empty = no restriction)",
+    )
 
     # Cache settings
     cache_max_size: int = Field(default=5, description="Maximum number of workbooks in cache")

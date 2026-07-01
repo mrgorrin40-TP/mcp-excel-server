@@ -163,6 +163,24 @@ class XlwingsBackend(ExcelBackend):
 
         return "string"
 
+    def get_max_row(self, sheet_name: str) -> int:
+        """Get the maximum row number with data in a worksheet."""
+        sheet = self.get_sheet(sheet_name)
+        used_range = sheet.used_range
+        if used_range:
+            last_cell = used_range.last_cell
+            return last_cell.row
+        return 0
+
+    def get_max_column(self, sheet_name: str) -> int:
+        """Get the maximum column number with data in a worksheet."""
+        sheet = self.get_sheet(sheet_name)
+        used_range = sheet.used_range
+        if used_range:
+            last_cell = used_range.last_cell
+            return last_cell.column
+        return 0
+
     # VBA-specific methods
 
     def has_macros(self) -> bool:
@@ -283,16 +301,34 @@ class XlwingsBackend(ExcelBackend):
             raise ValueError(f"Error renaming module '{old_name}': {e}") from e
 
     def run_macro(self, macro_name: str, *args: Any) -> Any:
-        """Execute a VBA macro by name."""
+        """Execute a VBA macro by name with timeout support."""
         if not self._book:
             raise ValueError("No workbook open")
 
-        try:
+        from concurrent.futures import ThreadPoolExecutor
+        from concurrent.futures import TimeoutError as FuturesTimeout
+
+        from ..config import settings
+
+        def _execute() -> Any:
             macro = self._book.app.macro(macro_name)
             if args:
                 return macro(*args)
             return macro()
+
+        timeout = settings.vba_macro_timeout
+
+        try:
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(_execute)
+                return future.result(timeout=timeout)
+        except FuturesTimeout as err:
+            raise ValueError(
+                f"Macro '{macro_name}' timed out after {timeout} seconds"
+            ) from err
         except Exception as e:
+            if "timed out" in str(e).lower():
+                raise
             raise ValueError(f"Error running macro '{macro_name}': {e}") from e
 
     def list_macros(self) -> list[dict[str, Any]]:

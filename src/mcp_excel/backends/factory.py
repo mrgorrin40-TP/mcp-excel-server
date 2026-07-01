@@ -20,9 +20,17 @@ def create_backend(file_path: str | Path) -> ExcelBackend:
 
     Raises:
         FileNotFoundError: If file doesn't exist
-        ValueError: If file format is not supported
+        ValueError: If file format is not supported or path validation fails
     """
-    path = Path(file_path)
+    # Validate path (checks for traversal, allowed directories)
+    from ..utils.validation import PathValidationError, validate_file_path
+
+    try:
+        validated_path = validate_file_path(str(file_path))
+    except PathValidationError as e:
+        raise ValueError(str(e)) from e
+
+    path = Path(validated_path)
 
     if not path.exists():
         raise FileNotFoundError(f"File not found: {path}")

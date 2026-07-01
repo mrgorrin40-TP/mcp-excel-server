@@ -6,8 +6,7 @@ from typing import Annotated, Any
 from fastmcp import FastMCP
 from pydantic import Field
 
-from ..backends.factory import create_backend
-from ..utils.cache import shared_cache
+from ..utils.backend import get_backend
 
 logger = logging.getLogger(__name__)
 
@@ -28,15 +27,9 @@ async def write_cells(
 ) -> dict[str, Any]:
     """Write values to cells in an Excel file."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
-
+        backend = get_backend(file_path)
         backend.write_range(sheet_name, cell_range, values)
         backend.save()
-
-        shared_cache.put(file_path, backend)
 
         # Count cells written
         rows = len(values)
@@ -66,10 +59,7 @@ async def write_formula(
 ) -> dict[str, Any]:
     """Add an Excel formula to a cell."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
+        backend = get_backend(file_path)
 
         # Ensure formula starts with =
         if not formula.startswith("="):
@@ -77,8 +67,6 @@ async def write_formula(
 
         backend.write_cell(sheet_name, cell, formula)
         backend.save()
-
-        shared_cache.put(file_path, backend)
 
         return {
             "success": True,
@@ -102,15 +90,9 @@ async def create_sheet(
 ) -> dict[str, Any]:
     """Create a new worksheet in an Excel file."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
-
+        backend = get_backend(file_path)
         backend.create_sheet(sheet_name)
         backend.save()
-
-        shared_cache.put(file_path, backend)
 
         return {
             "success": True,
@@ -133,15 +115,9 @@ async def delete_sheet(
 ) -> dict[str, Any]:
     """Delete a worksheet from an Excel file."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
-
+        backend = get_backend(file_path)
         backend.delete_sheet(sheet_name)
         backend.save()
-
-        shared_cache.put(file_path, backend)
 
         return {
             "success": True,

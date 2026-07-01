@@ -6,8 +6,7 @@ from typing import Annotated, Any
 from fastmcp import FastMCP
 from pydantic import Field
 
-from ..backends.factory import create_backend
-from ..utils.cache import shared_cache
+from ..utils.backend import get_backend
 
 logger = logging.getLogger(__name__)
 
@@ -65,10 +64,7 @@ async def create_table(
 ) -> dict[str, Any]:
     """Create a structured Excel table from a data range."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
+        backend = get_backend(file_path)
 
         ws = backend.get_sheet(sheet_name)
 
@@ -107,7 +103,6 @@ async def create_table(
         ws.add_table(tab)
 
         backend.save()
-        shared_cache.put(file_path, backend)
 
         return {
             "success": True,
@@ -133,11 +128,7 @@ async def list_tables(
 ) -> dict[str, Any]:
     """List all structured tables in an Excel worksheet."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
-            shared_cache.put(file_path, backend)
+        backend = get_backend(file_path)
 
         ws = backend.get_sheet(sheet_name)
 
@@ -181,10 +172,7 @@ async def delete_table(
 ) -> dict[str, Any]:
     """Delete a structured table from an Excel worksheet."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
+        backend = get_backend(file_path)
 
         ws = backend.get_sheet(sheet_name)
 
@@ -198,7 +186,6 @@ async def delete_table(
         del ws.tables[table_name]
 
         backend.save()
-        shared_cache.put(file_path, backend)
 
         return {
             "success": True,
@@ -223,10 +210,7 @@ async def add_table_row(
 ) -> dict[str, Any]:
     """Add a row to an Excel structured table."""
     try:
-        backend = shared_cache.get(file_path)
-        if backend is None:
-            backend = create_backend(file_path)
-            backend.open(file_path)
+        backend = get_backend(file_path)
 
         ws = backend.get_sheet(sheet_name)
 
@@ -264,7 +248,6 @@ async def add_table_row(
                 cell.value = value
 
         backend.save()
-        shared_cache.put(file_path, backend)
 
         return {
             "success": True,

@@ -173,6 +173,7 @@ class OpenpyxlBackend(ExcelBackend):
 
         # Check for date/datetime
         from datetime import date, datetime
+
         if isinstance(cell_obj.value, (datetime, date)):
             return "date"
 
@@ -186,3 +187,13 @@ class OpenpyxlBackend(ExcelBackend):
 
         # Default to string
         return "string"
+
+    def get_max_row(self, sheet_name: str) -> int:
+        """Get the maximum row number with data in a worksheet."""
+        ws = self.get_sheet(sheet_name)
+        return ws.max_row or 0
+
+    def get_max_column(self, sheet_name: str) -> int:
+        """Get the maximum column number with data in a worksheet."""
+        ws = self.get_sheet(sheet_name)
+        return ws.max_column or 0
