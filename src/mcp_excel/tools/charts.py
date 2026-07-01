@@ -7,6 +7,7 @@ from fastmcp import FastMCP
 from pydantic import Field
 
 from ..utils.backend import get_backend
+from ..utils.common import col_letter_to_index
 
 logger = logging.getLogger(__name__)
 
@@ -88,9 +89,9 @@ async def create_chart(
         data_ref = Reference(ws, min_col=1, min_row=1, max_col=1, max_row=1)
         if ":" in data_range:
             start, end = data_range.split(":")
-            start_col = _col_letter_to_index(start)
+            start_col = col_letter_to_index(start)
             start_row = int("".join(c for c in start if c.isdigit()))
-            end_col = _col_letter_to_index(end)
+            end_col = col_letter_to_index(end)
             end_row = int("".join(c for c in end if c.isdigit()))
             data_ref = Reference(
                 ws,
@@ -108,7 +109,7 @@ async def create_chart(
             cat_ref = Reference(ws, min_col=1, min_row=1, max_col=1, max_row=1)
             if ":" in category_range:
                 cat_start, cat_end = category_range.split(":")
-                cat_col = _col_letter_to_index(cat_start)
+                cat_col = col_letter_to_index(cat_start)
                 cat_start_row = int("".join(c for c in cat_start if c.isdigit()))
                 cat_end_row = int("".join(c for c in cat_end if c.isdigit()))
                 cat_ref = Reference(
@@ -269,14 +270,6 @@ async def modify_chart(
     except Exception as e:
         logger.error("Error modifying chart: %s", e)
         return {"success": False, "error": str(e)}
-
-
-def _col_letter_to_index(cell_ref: str) -> int:
-    """Convert column letter to 1-based index."""
-    from openpyxl.utils import column_index_from_string
-
-    col_letter = "".join(c for c in cell_ref if c.isalpha())
-    return int(column_index_from_string(col_letter))
 
 
 def _extract_chart_title(chart: Any) -> str:

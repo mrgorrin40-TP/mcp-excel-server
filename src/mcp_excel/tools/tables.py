@@ -7,6 +7,7 @@ from fastmcp import FastMCP
 from pydantic import Field
 
 from ..utils.backend import get_backend
+from ..utils.common import col_letter_to_index
 
 logger = logging.getLogger(__name__)
 
@@ -73,9 +74,9 @@ async def create_table(
 
         # Parse data range
         start, end = data_range.split(":")
-        _col_letter_to_index(start)
+        col_letter_to_index(start)
         int("".join(c for c in start if c.isdigit()))
-        _col_letter_to_index(end)
+        col_letter_to_index(end)
         int("".join(c for c in end if c.isdigit()))
 
         # Create table
@@ -258,11 +259,3 @@ async def add_table_row(
     except Exception as e:
         logger.error("Error adding table row: %s", e)
         return {"success": False, "error": str(e)}
-
-
-def _col_letter_to_index(cell_ref: str) -> int:
-    """Convert column letter to 1-based index."""
-    from openpyxl.utils import column_index_from_string
-
-    col_letter = "".join(c for c in cell_ref if c.isalpha())
-    return int(column_index_from_string(col_letter))
