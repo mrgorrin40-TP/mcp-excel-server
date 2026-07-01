@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "mcp-excel-server"
-version = "0.2.0"
-description = "MCP server for Excel file manipulation - read, write, formulas, charts, and tables"
+version = "0.3.0"
+description = "MCP server for Excel file manipulation - read, write, formulas, charts, tables, and VBA macros"
 authors = ["Mario <mario@example.com>"]
 license = "MIT"
 readme = "README.md"
@@ -26,6 +26,10 @@ fastmcp = ">=2.0,<4"
 openpyxl = "^3.1.5"
 pydantic = "^2.0"
 pydantic-settings = "^2.0"
+xlwings = {version = ">=0.24.0", optional = true}
+
+[tool.poetry.extras]
+vba = ["xlwings"]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0"

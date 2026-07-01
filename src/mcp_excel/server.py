@@ -9,7 +9,7 @@ from fastmcp import FastMCP
 from .config import settings
 from .prompts import templates as prompt_templates
 from .resources import excel as excel_resources
-from .tools import charts, formulas, inspect, read, tables, write
+from .tools import charts, formulas, inspect, read, tables, vba, write
 
 # Configure logging to stderr (keep stdout clean for MCP)
 logging.basicConfig(
@@ -24,9 +24,9 @@ mcp = FastMCP(
     name="mcp-excel-server",
     instructions=(
         "MCP server for Excel file manipulation - "
-        "read, write, formulas, charts, tables, and analysis"
+        "read, write, formulas, charts, tables, VBA macros, and analysis"
     ),
-    version="0.2.0",
+    version="0.3.0",
     mask_error_details=settings.mask_errors,
 )
 
@@ -37,6 +37,7 @@ mcp.mount(formulas.tools)
 mcp.mount(inspect.tools)
 mcp.mount(charts.tools)
 mcp.mount(tables.tools)
+mcp.mount(vba.tools)
 
 
 # Register MCP Resources
@@ -96,7 +97,7 @@ def data_quality_check(file_path: str, sheet_name: str) -> str:
     return str(result.get("text", ""))
 
 
-logger.info("MCP Excel Server initialized (v0.2.0)")
+logger.info("MCP Excel Server initialized (v0.3.0)")
 
 
 def main() -> None:

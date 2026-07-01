@@ -34,13 +34,45 @@ def create_backend(file_path: str | Path) -> ExcelBackend:
         logger.info("Using openpyxl backend for %s", path)
         return OpenpyxlBackend()
 
-    # Add more backends here as needed
-    # elif suffix == ".xls":
-    #     return XlrdBackend()
+    # VBA-enabled workbooks
+    if suffix in (".xlsm", ".xlsb", ".xlam"):
+        from ..config import settings
 
-    raise ValueError(f"Unsupported file format: {suffix}")
+        if not settings.vba_enabled:
+            raise ValueError(
+                "VBA support is disabled. Enable with MCP_EXCEL_VBA_ENABLED=true"
+            )
+
+        # Try to use xlwings if available
+        try:
+            import xlwings as xw  # noqa: F401
+
+            from .xlwings_backend import XlwingsBackend
+
+            logger.info("Using xlwings backend for %s", path)
+            return XlwingsBackend()
+        except ImportError as err:
+            raise ValueError(
+                "xlwings is required for VBA macro support. "
+                "Install with: pip install 'mcp-excel-server[vba]'"
+            ) from err
+
+    raise ValueError(
+        f"Unsupported file format: {suffix}. "
+        f"Supported formats: .xlsx, .xlsm, .xlsb, .xlam"
+    )
 
 
 def get_available_backends() -> list[str]:
     """Get list of available backend formats."""
-    return [".xlsx"]
+    backends = [".xlsx"]
+
+    # Check if xlwings is available
+    try:
+        import xlwings as xw  # noqa: F401
+
+        backends.extend([".xlsm", ".xlsb", ".xlam"])
+    except ImportError:
+        logger.info("xlwings not installed, VBA formats not available")
+
+    return backends

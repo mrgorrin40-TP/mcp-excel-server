@@ -10,6 +10,7 @@ Complete reference for all MCP Excel Server tools.
 - [Analysis Tools](#analysis-tools)
 - [Chart Tools](#chart-tools)
 - [Table Tools](#table-tools)
+- [VBA Tools](#vba-tools)
 
 ---
 
@@ -1003,11 +1004,440 @@ Add a row to an Excel structured table.
 
 ---
 
+## VBA Tools
+
+### list_vba_modules
+
+List all VBA modules in an Excel workbook (.xlsm).
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `file_path` | string | Yes | Absolute path to Excel file (.xlsm) |
+
+**Returns:**
+- List of VBA modules with name, type, and description
+
+**Example:**
+```json
+{
+  "file_path": "C:/Documents/macros.xlsm"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "modules": [
+    {"name": "Module1", "type": "standard", "description": ""},
+    {"name": "ThisWorkbook", "type": "document", "description": ""}
+  ],
+  "count": 2
+}
+```
+
+---
+
+### get_vba_code
+
+Get VBA source code from a module.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `file_path` | string | Yes | Absolute path to Excel file |
+| `module_name` | string | Yes | VBA module name |
+
+**Returns:**
+- VBA source code as string
+
+**Example:**
+```json
+{
+  "file_path": "C:/Documents/macros.xlsm",
+  "module_name": "Module1"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "module_name": "Module1",
+  "code": "Sub HelloWorld()\n    MsgBox \"Hello\"\nEnd Sub"
+}
+```
+
+---
+
+### set_vba_code
+
+Set/replace VBA source code in a module.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `file_path` | string | Yes | Absolute path to Excel file |
+| `module_name` | string | Yes | VBA module name |
+| `code` | string | Yes | VBA source code |
+
+**Returns:**
+- Success status and code length
+
+**Example:**
+```json
+{
+  "file_path": "C:/Documents/macros.xlsm",
+  "module_name": "Module1",
+  "code": "Sub NewMacro()\n    MsgBox \"New\"\nEnd Sub"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "module_name": "Module1",
+  "code_length": 45
+}
+```
+
+---
+
+### add_vba_module
+
+Add a new VBA module to the workbook.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `file_path` | string | Yes | Absolute path to Excel file |
+| `module_name` | string | Yes | Name for the new module |
+| `code` | string | No | Initial VBA code (default: "") |
+| `module_type` | string | No | Module type: standard, class, document (default: "standard") |
+
+**Returns:**
+- Success status and module info
+
+**Example:**
+```json
+{
+  "file_path": "C:/Documents/macros.xlsm",
+  "module_name": "NewModule",
+  "code": "Sub Test()\n    MsgBox \"Test\"\nEnd Sub",
+  "module_type": "standard"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "module_name": "NewModule",
+  "module_type": "standard"
+}
+```
+
+---
+
+### delete_vba_module
+
+Delete a VBA module from the workbook.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `file_path` | string | Yes | Absolute path to Excel file |
+| `module_name` | string | Yes | VBA module name to delete |
+
+**Returns:**
+- Success status and deleted module name
+
+**Example:**
+```json
+{
+  "file_path": "C:/Documents/macros.xlsm",
+  "module_name": "Module1"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "deleted_module": "Module1"
+}
+```
+
+---
+
+### rename_vba_module
+
+Rename a VBA module.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `file_path` | string | Yes | Absolute path to Excel file |
+| `old_name` | string | Yes | Current module name |
+| `new_name` | string | Yes | New module name |
+
+**Returns:**
+- Success status and name change info
+
+**Example:**
+```json
+{
+  "file_path": "C:/Documents/macros.xlsm",
+  "old_name": "Module1",
+  "new_name": "Utilities"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "old_name": "Module1",
+  "new_name": "Utilities"
+}
+```
+
+---
+
+### run_macro
+
+Execute a VBA macro by name.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `file_path` | string | Yes | Absolute path to Excel file |
+| `macro_name` | string | Yes | Macro name (e.g., 'Module1.MyMacro' or 'MyMacro') |
+| `args` | array | No | Arguments to pass to the macro (default: []) |
+
+**Returns:**
+- Macro execution result
+
+**Example:**
+```json
+{
+  "file_path": "C:/Documents/macros.xlsm",
+  "macro_name": "Module1.HelloWorld",
+  "args": []
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "macro_name": "Module1.HelloWorld",
+  "result": null
+}
+```
+
+---
+
+### list_macros
+
+List all Sub/Function procedures in VBA project.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `file_path` | string | Yes | Absolute path to Excel file |
+
+**Returns:**
+- List of macros with name, type, and module
+
+**Example:**
+```json
+{
+  "file_path": "C:/Documents/macros.xlsm"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "macros": [
+    {"name": "HelloWorld", "type": "Sub", "module": "Module1", "is_public": true},
+    {"name": "Calculate", "type": "Function", "module": "Module1", "is_public": true}
+  ],
+  "count": 2
+}
+```
+
+---
+
+### get_vba_templates
+
+Get VBA code templates for common tasks.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `template_type` | string | No | Template type (or None for all) |
+
+**Available templates:**
+- `hello_world` - Simple Hello World macro
+- `loop_range` - Loop through a range
+- `filter_data` - AutoFilter example
+- `create_chart` - Create a chart from data
+- `copy_to_sheet` - Copy data to another sheet
+- `send_email` - Send email via Outlook
+- `format_cells` - Format cells with colors
+- `pivot_table` - Create a PivotTable
+- `validate_input` - Data validation
+- `workbook_events` - ThisWorkbook event handlers
+- `error_handling` - Error handling template
+- `file_operations` - Read/write text files
+
+**Example:**
+```json
+{
+  "template_type": "hello_world"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "templates": {
+    "hello_world": {
+      "description": "Simple Hello World macro",
+      "code": "Sub HelloWorld()\n    MsgBox \"Hello, World!\"\nEnd Sub"
+    }
+  }
+}
+```
+
+---
+
+### validate_vba_code
+
+Validate VBA code syntax (basic validation).
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `code` | string | Yes | VBA code to validate |
+
+**Returns:**
+- Validity status
+- Errors and warnings lists
+- Detected Sub/Function names
+
+**Example:**
+```json
+{
+  "code": "Sub Test()\n    MsgBox \"Hello\"\nEnd Sub"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "valid": true,
+  "errors": [],
+  "warnings": [],
+  "subs": ["Test"],
+  "functions": []
+}
+```
+
+---
+
+### import_vba_module
+
+Import VBA code from a string to a module.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `file_path` | string | Yes | Absolute path to Excel file |
+| `module_name` | string | Yes | Target module name |
+| `code` | string | Yes | VBA code to import |
+| `module_type` | string | No | Module type: standard, class, document (default: "standard") |
+
+**Returns:**
+- Success status and module info
+
+**Example:**
+```json
+{
+  "file_path": "C:/Documents/macros.xlsm",
+  "module_name": "ImportedModule",
+  "code": "Sub Imported()\n    MsgBox \"Imported\"\nEnd Sub"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "module_name": "ImportedModule",
+  "code_length": 45
+}
+```
+
+---
+
+### export_vba_module
+
+Export VBA code from a module to a string.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `file_path` | string | Yes | Absolute path to Excel file |
+| `module_name` | string | Yes | VBA module name to export |
+
+**Returns:**
+- VBA source code as string
+
+**Example:**
+```json
+{
+  "file_path": "C:/Documents/macros.xlsm",
+  "module_name": "Module1"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "module_name": "Module1",
+  "code": "Sub Test()\n    MsgBox \"Hello\"\nEnd Sub",
+  "code_length": 40
+}
+```
+
+---
+
 ## Coming Soon
 
 The following tools are planned for future releases:
 
-### Advanced (v0.3.0)
+### Advanced (v0.4.0)
 - `pivot_table` - Create pivot tables
 - `conditional_format` - Apply conditional formatting
 - `data_validation` - Add data validation rules

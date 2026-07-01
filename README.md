@@ -4,7 +4,7 @@
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A Model Context Protocol (MCP) server for Excel file manipulation. Read, write, analyze, and transform Excel spreadsheets (.xlsx) using AI agents.
+A Model Context Protocol (MCP) server for Excel file manipulation. Read, write, analyze, and transform Excel spreadsheets (.xlsx, .xlsm) using AI agents.
 
 ## Features
 
@@ -14,6 +14,7 @@ A Model Context Protocol (MCP) server for Excel file manipulation. Read, write, 
 - **Charts** - Create and modify Excel charts (bar, line, pie, scatter, area)
 - **Tables** - Work with Excel structured tables
 - **Analysis** - Statistical summaries, filtering, and grouping
+- **VBA Macros** - Create, edit, and execute VBA macros (requires Excel installed)
 
 ## Quick Start
 
@@ -29,6 +30,9 @@ poetry install
 
 # Or with pip
 pip install -e .
+
+# For VBA macro support (requires Excel installed)
+pip install -e ".[vba]"
 ```
 
 ### Configuration

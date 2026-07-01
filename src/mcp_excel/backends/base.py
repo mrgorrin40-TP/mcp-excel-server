@@ -72,3 +72,77 @@ class ExcelBackend(ABC):
     def get_cell_type(self, sheet_name: str, cell: str) -> str:
         """Get the data type of a cell."""
         pass
+
+    # VBA-specific methods (optional - not all backends support VBA)
+
+    def has_macros(self) -> bool:
+        """Check if workbook contains VBA macros.
+
+        Default implementation returns False.
+        Override in backends that support VBA.
+        """
+        return False
+
+    def list_vba_modules(self) -> list[dict[str, Any]]:
+        """List all VBA modules in the workbook.
+
+        Default implementation returns empty list.
+        Override in backends that support VBA.
+        """
+        return []
+
+    def get_vba_code(self, module_name: str) -> str:
+        """Get VBA source code from a module.
+
+        Default implementation raises ValueError.
+        Override in backends that support VBA.
+        """
+        raise ValueError("VBA not supported by this backend")
+
+    def set_vba_code(self, module_name: str, code: str) -> None:
+        """Set/replace VBA source code in a module.
+
+        Default implementation raises ValueError.
+        Override in backends that support VBA.
+        """
+        raise ValueError("VBA not supported by this backend")
+
+    def add_vba_module(self, name: str, code: str = "", module_type: str = "standard") -> None:
+        """Add a new VBA module.
+
+        Default implementation raises ValueError.
+        Override in backends that support VBA.
+        """
+        raise ValueError("VBA not supported by this backend")
+
+    def delete_vba_module(self, name: str) -> None:
+        """Delete a VBA module.
+
+        Default implementation raises ValueError.
+        Override in backends that support VBA.
+        """
+        raise ValueError("VBA not supported by this backend")
+
+    def rename_vba_module(self, old_name: str, new_name: str) -> None:
+        """Rename a VBA module.
+
+        Default implementation raises ValueError.
+        Override in backends that support VBA.
+        """
+        raise ValueError("VBA not supported by this backend")
+
+    def run_macro(self, macro_name: str, *args: Any) -> Any:
+        """Execute a VBA macro by name.
+
+        Default implementation raises ValueError.
+        Override in backends that support VBA.
+        """
+        raise ValueError("VBA not supported by this backend")
+
+    def list_macros(self) -> list[dict[str, Any]]:
+        """List all Sub/Function procedures in VBA project.
+
+        Default implementation returns empty list.
+        Override in backends that support VBA.
+        """
+        return []

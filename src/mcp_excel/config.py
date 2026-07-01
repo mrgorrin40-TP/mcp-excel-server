@@ -27,6 +27,15 @@ class Settings(BaseSettings):
     # Logging
     log_level: str = Field(default="INFO", description="Logging level")
 
+    # VBA settings
+    vba_enabled: bool = Field(default=True, description="Enable VBA macro support")
+    vba_macro_timeout: int = Field(default=30, description="Timeout for macro execution (seconds)")
+    vba_trust_access: bool = Field(
+        default=False, description="Trust Access to VBA Object Model"
+    )
+    vba_show_excel: bool = Field(default=False, description="Show Excel window during execution")
+    vba_audit_log: bool = Field(default=True, description="Log all VBA operations")
+
     model_config = {
         "env_prefix": "MCP_EXCEL_",
         "env_file": ".env",
