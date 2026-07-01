@@ -17,17 +17,25 @@ class VBAValidationResult:
 
 
 # Potentially dangerous VBA patterns
+# Note: VBA syntax uses spaces not parentheses for most commands
 DANGEROUS_PATTERNS = [
+    (r"(?i)\bShell\s+\"", "Shell command execution"),
     (r"(?i)\bShell\s*\(", "Shell command execution"),
     (r"(?i)\bCreateObject\s*\(", "ActiveX object creation"),
     (r"(?i)\bWScript\.Shell", "Windows Script Host access"),
     (r"(?i)\bFileSystemObject", "File system access"),
+    (r"(?i)\bKill\s+\"", "File deletion"),
     (r"(?i)\bKill\s*\(", "File deletion"),
     (r"(?i)\bName\s+.*\s+As\s+", "File rename/move"),
+    (r"(?i)\bMkDir\s+\"", "Directory creation"),
     (r"(?i)\bMkDir\s*\(", "Directory creation"),
+    (r"(?i)\bRmDir\s+\"", "Directory deletion"),
     (r"(?i)\bRmDir\s*\(", "Directory deletion"),
+    (r"(?i)\bSendKeys\s+\"", "Keyboard input simulation"),
     (r"(?i)\bSendKeys\s*\(", "Keyboard input simulation"),
+    (r"(?i)\bRegRead\s+\"", "Registry read"),
     (r"(?i)\bRegRead\s*\(", "Registry read"),
+    (r"(?i)\bRegWrite\s+\"", "Registry write"),
     (r"(?i)\bRegWrite\s*\(", "Registry write"),
     (r"(?i)\bURLDownloadToFile", "File download from internet"),
     (r"(?i)\bExec\s*\(", "Command execution"),
