@@ -174,7 +174,7 @@ class OpenpyxlBackend(ExcelBackend):
         # Check for date/datetime
         from datetime import date, datetime
 
-        if isinstance(cell_obj.value, (datetime, date)):
+        if isinstance(cell_obj.value, datetime | date):
             return "date"
 
         # Check for boolean
@@ -182,7 +182,7 @@ class OpenpyxlBackend(ExcelBackend):
             return "boolean"
 
         # Check for number
-        if isinstance(cell_obj.value, (int, float)):
+        if isinstance(cell_obj.value, int | float):
             return "number"
 
         # Default to string

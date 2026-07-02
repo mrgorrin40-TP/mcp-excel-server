@@ -152,13 +152,13 @@ class XlwingsBackend(ExcelBackend):
 
         from datetime import date, datetime
 
-        if isinstance(value, (datetime, date)):
+        if isinstance(value, datetime | date):
             return "date"
 
         if isinstance(value, bool):
             return "boolean"
 
-        if isinstance(value, (int, float)):
+        if isinstance(value, int | float):
             return "number"
 
         return "string"

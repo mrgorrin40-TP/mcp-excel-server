@@ -50,7 +50,7 @@ async def get_column_stats(
 
             if cell_value is None:
                 null_count += 1
-            elif isinstance(cell_value, (int, float)):
+            elif isinstance(cell_value, int | float):
                 values.append(cell_value)
             else:
                 # Try to convert to number
