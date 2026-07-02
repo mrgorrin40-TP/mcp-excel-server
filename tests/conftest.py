@@ -1,8 +1,8 @@
 """Pytest configuration and fixtures for MCP Excel Server tests."""
 
-import pytest
 from pathlib import Path
-from typing import Generator
+
+import pytest
 
 
 @pytest.fixture

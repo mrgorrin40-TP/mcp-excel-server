@@ -1,11 +1,9 @@
 """Unit tests for LRU cache."""
 
-import pytest
-import time
 from pathlib import Path
 
-from mcp_excel.utils.cache import WorkbookCache
 from mcp_excel.backends.openpyxl_backend import OpenpyxlBackend
+from mcp_excel.utils.cache import WorkbookCache
 
 
 class TestWorkbookCache:

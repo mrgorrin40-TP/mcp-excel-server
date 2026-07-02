@@ -1,14 +1,14 @@
 """Integration tests for table tools."""
 
-import pytest
 from pathlib import Path
 
-from mcp_excel.tools.write import write_cells
+import pytest
+
 from mcp_excel.tools.tables import (
-    create_table,
-    list_tables,
-    delete_table,
     add_table_row,
+    create_table,
+    delete_table,
+    list_tables,
 )
 
 

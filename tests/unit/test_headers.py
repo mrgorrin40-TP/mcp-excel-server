@@ -1,8 +1,7 @@
 """Unit tests for header detection utilities."""
 
-import pytest
 
-from mcp_excel.utils.headers import HeaderDetector, HeaderDetectionResult
+from mcp_excel.utils.headers import HeaderDetectionResult, HeaderDetector
 
 
 class TestHeaderDetector:

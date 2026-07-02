@@ -2,7 +2,7 @@
 
 import pytest
 
-from mcp_excel.utils.paging import PagingService, PaginationResult
+from mcp_excel.utils.paging import PaginationResult, PagingService
 
 
 class TestPagingService:

@@ -1,21 +1,22 @@
 """Tests for VBA tools."""
 
-import pytest
 from unittest.mock import Mock, patch
 
+import pytest
+
 from mcp_excel.tools.vba import (
-    list_vba_modules,
-    get_vba_code,
-    set_vba_code,
     add_vba_module,
     delete_vba_module,
+    export_vba_module,
+    get_vba_code,
+    get_vba_templates,
+    import_vba_module,
+    list_macros,
+    list_vba_modules,
     rename_vba_module,
     run_macro,
-    list_macros,
-    get_vba_templates,
+    set_vba_code,
     validate_vba_code,
-    import_vba_module,
-    export_vba_module,
 )
 
 
@@ -286,7 +287,13 @@ class TestValidateVbaCode:
 
     async def test_code_with_comments(self):
         """Test validation with comments."""
-        code = "' This is a comment\nSub Test()\n    ' Another comment\n    MsgBox \"Hello\"\nEnd Sub"
+        code = (
+            "' This is a comment\n"
+            "Sub Test()\n"
+            "    ' Another comment\n"
+            '    MsgBox "Hello"\n'
+            "End Sub"
+        )
         result = await validate_vba_code(code=code)
 
         assert result["success"] is True

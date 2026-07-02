@@ -1,20 +1,17 @@
 """Tests for security features: validation, audit, rate limiter."""
 
-import tempfile
-import time
-from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
+from mcp_excel.utils.audit import AuditLogger
+from mcp_excel.utils.rate_limiter import RateLimitConfig, RateLimiter
 from mcp_excel.utils.validation import (
     PathValidationError,
     get_allowed_extensions,
     is_valid_extension,
     validate_file_path,
 )
-from mcp_excel.utils.audit import AuditEvent, AuditLogger, audit_logger
-from mcp_excel.utils.rate_limiter import RateLimiter, RateLimitConfig, rate_limiter
 from mcp_excel.utils.vba_validator import check_vba_safety, validate_vba_code
 
 

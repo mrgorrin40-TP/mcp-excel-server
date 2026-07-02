@@ -1,10 +1,11 @@
 """Integration tests for inspect tools."""
 
-import pytest
 from pathlib import Path
 
-from mcp_excel.tools.read import list_sheets, describe_workbook
-from mcp_excel.tools.inspect import get_column_stats, filter_rows, group_by
+import pytest
+
+from mcp_excel.tools.inspect import filter_rows, get_column_stats, group_by
+from mcp_excel.tools.read import describe_workbook, list_sheets
 
 
 @pytest.mark.asyncio

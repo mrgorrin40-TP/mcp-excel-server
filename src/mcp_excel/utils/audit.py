@@ -165,6 +165,8 @@ class AuditLogger:
     def _write_to_file(self, event: AuditEvent) -> None:
         """Write event to log file."""
         try:
+            if not self._log_file:
+                return
             log_path = Path(self._log_file)
             log_path.parent.mkdir(parents=True, exist_ok=True)
             with open(log_path, "a", encoding="utf-8") as f:

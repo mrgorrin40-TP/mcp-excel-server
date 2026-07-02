@@ -1,7 +1,8 @@
 """Unit tests for Excel backends."""
 
-import pytest
 from pathlib import Path
+
+import pytest
 
 from mcp_excel.backends.factory import create_backend
 from mcp_excel.backends.openpyxl_backend import OpenpyxlBackend

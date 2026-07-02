@@ -68,6 +68,7 @@ async def create_chart(
 
         # Create chart based on type
         chart_type_lower = chart_type.lower()
+        chart: BarChart | LineChart | PieChart | ScatterChart | AreaChart
         if chart_type_lower == "bar":
             chart = BarChart()
         elif chart_type_lower == "line":

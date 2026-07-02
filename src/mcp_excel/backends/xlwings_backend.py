@@ -169,7 +169,7 @@ class XlwingsBackend(ExcelBackend):
         used_range = sheet.used_range
         if used_range:
             last_cell = used_range.last_cell
-            return last_cell.row
+            return int(last_cell.row)
         return 0
 
     def get_max_column(self, sheet_name: str) -> int:
@@ -178,7 +178,7 @@ class XlwingsBackend(ExcelBackend):
         used_range = sheet.used_range
         if used_range:
             last_cell = used_range.last_cell
-            return last_cell.column
+            return int(last_cell.column)
         return 0
 
     # VBA-specific methods
