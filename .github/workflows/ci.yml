@@ -34,13 +34,13 @@ jobs:
         run: poetry run mypy src/ --ignore-missing-imports
       
       - name: Run unit tests
-        run: poetry run pytest tests/unit/ -v --cov=src/mcp_excel --cov-report=term-missing
+        run: poetry run pytest tests/unit/ -v --cov=src/mcp_excel --cov-append --cov-report=term-missing
       
       - name: Run integration tests
-        run: poetry run pytest tests/integration/ -v
+        run: poetry run pytest tests/integration/ -v --cov=src/mcp_excel --cov-append --cov-report=term-missing
       
       - name: Run contract tests
-        run: poetry run pytest tests/contract/ -v
+        run: poetry run pytest tests/contract/ -v --cov=src/mcp_excel --cov-append --cov-report=term-missing
       
       - name: Check coverage threshold
         run: poetry run coverage report --fail-under=80

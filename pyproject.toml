@@ -63,3 +63,13 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["mcp_excel"]
+omit = [
+    "src/mcp_excel/backends/xlwings_backend.py",
+    "src/mcp_excel/server.py",
+    "src/mcp_excel/__main__.py",
+    "src/mcp_excel/prompts/*",
+    "src/mcp_excel/resources/*",
+]
