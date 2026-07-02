@@ -37,6 +37,7 @@ pytest-asyncio = "^0.24"
 pytest-cov = "^5.0"
 ruff = "^0.8"
 mypy = "^1.14"
+types-openpyxl = "^3.1"
 
 [build-system]
 requires = ["poetry-core"]
