@@ -7,7 +7,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
-## [0.4.0] - 2026-07-01
+## [0.4.0] - 2026-07-02
 
 ### Added
 - Validación de paths anti-traversal con `allowed_directories` config
@@ -16,6 +16,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Rate limiting configurable por cliente para requests y macros
 - Detección de código VBA peligroso (Shell, FileSystemObject, SendKeys, etc.)
 - Tests de seguridad (26 tests para validation, audit, rate limiter, VBA safety)
+- `CHANGELOG.md` y `CONTRIBUTING.md`
 
 ### Changed
 - Extraído `get_backend()` a `utils/backend.py` para eliminar código duplicado
@@ -23,10 +24,15 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Extraído `validate_vba_code()` a `utils/vba_validator.py`
 - Movido `col_letter_to_index()` a `utils/common.py`
 - Backend methods `get_max_row`, `get_max_column` añadidos a `base.py`
+- CI: `--cov-append` para acumular coverage entre unit/integration/contract tests
+- Coverage omit para módulos no testeables (xlwings, server, prompts, resources)
 
 ### Fixed
 - Circular import en `get_backend()` moviendo a `utils/backend.py`
 - Mock paths en tests de VBA
+- Errores ruff (60) y mypy (15) en CI
+- UP038 isinstance syntax (`isinstance(x, (A, B))` → `isinstance(x, A | B)`)
+- `types-openpyxl` añadido a dev dependencies
 
 ## [0.3.0] - 2026-07-01
 

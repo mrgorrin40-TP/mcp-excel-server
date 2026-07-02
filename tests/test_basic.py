@@ -10,7 +10,7 @@ async def test_server_initialization():
     from mcp_excel.server import mcp
 
     assert mcp.name == "mcp-excel-server"
-    assert mcp.version == "0.3.0"
+    assert mcp.version == "0.4.0"
 
 
 @pytest.mark.asyncio

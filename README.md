@@ -15,6 +15,7 @@ A Model Context Protocol (MCP) server for Excel file manipulation. Read, write, 
 - **Tables** - Work with Excel structured tables
 - **Analysis** - Statistical summaries, filtering, and grouping
 - **VBA Macros** - Create, edit, and execute VBA macros (requires Excel installed)
+- **Security** - Path validation, audit logging, rate limiting, VBA safety checks
 
 ## Quick Start
 

@@ -26,7 +26,7 @@ mcp = FastMCP(
         "MCP server for Excel file manipulation - "
         "read, write, formulas, charts, tables, VBA macros, and analysis"
     ),
-    version="0.3.0",
+    version="0.4.0",
     mask_error_details=settings.mask_errors,
 )
 
@@ -97,7 +97,7 @@ def data_quality_check(file_path: str, sheet_name: str) -> str:
     return str(result.get("text", ""))
 
 
-logger.info("MCP Excel Server initialized (v0.3.0)")
+logger.info("MCP Excel Server initialized (v0.4.0)")
 
 
 def main() -> None:
